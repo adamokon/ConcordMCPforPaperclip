@@ -1,0 +1,27 @@
+[Unit]
+Description=Scoped Paperclip coordinator broker
+After=network.target
+
+[Service]
+Type=simple
+User=concord-bridge
+Group=paperclip
+SupplementaryGroups=concord-bridge
+RuntimeDirectory=concord-paperclip
+RuntimeDirectoryMode=0750
+UMask=0077
+LoadCredential=paperclip-token:/etc/concord-paperclip/paperclip.token
+ExecStart=/opt/concord-paperclip-venv/bin/python -I -m concord_paperclip.cli --config /etc/concord-paperclip/config.json broker --socket /run/concord-paperclip/native.sock --group-id 996
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/concord-paperclip /run/concord-paperclip
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

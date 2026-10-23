@@ -1,0 +1,12 @@
+{
+  "base_url": "https://paperclip.example.invalid",
+  "company_id": "REPLACE_WITH_COMPANY_UUID",
+  "project_id": "REPLACE_WITH_PROJECT_UUID",
+  "principal": "coordinator",
+  "role": "coordinator",
+  "database": "/var/lib/concord-paperclip/bridge.db",
+  "token_file": "/private/credential/reference",
+  "profiles": [],
+  "max_depth": 1,
+  "max_children": 2
+}
