@@ -6,7 +6,11 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.2.0.** A real project module has passed the complete
+**Status: experimental v0.2.1.** Trusted verifier-policy changes can be reloaded
+within a long-lived MCP session; identity/authority drift still requires restart.
+The original failing chat channel was recovered without restarting the app.
+See [policy reload](docs/verifier-policy-reload.md) and the guarded
+[operator handoff](docs/stdio-handoff.md). A real project module has passed the complete
 worker, receipt, independent sandbox and operator-review path. See [v0.2](docs/V02.md), [test evidence](docs/TESTING.md)
 and [limitations](docs/LIMITATIONS.md) before enabling execution.
 

@@ -1,5 +1,21 @@
 # Test evidence
 
+## v0.2.1 — 2026-10-24
+
+**198 pytest tests passed** independently on macOS; Ruff and wheel/sdist passed.
+The Paperclip Codex agent supplied implementation, guarded handoff and regression
+tests; the supervisor reviewed/deployed them and verified the actual failing chat
+channel. See [policy reload](verifier-policy-reload.md) and
+[operator-only handoff](stdio-handoff.md) for trust and test boundaries.
+
+Real systemd/SSH acceptance preserved the same initialized SDK client and pipe
+identities across backend replacement. A policy update worked on that connection;
+removing the policy still failed closed, then restoration succeeded. Finally the
+original desktop chat returned v0.2.1 and receive results=[] without reconnecting
+the app. Runtime UID, empty capabilities and NoNewPrivileges were retained;
+one-time attestation/overrides were removed. No real model task was dispatched
+by these receipt tests.
+
 ## v0.2 acceptance — 2026-10-24
 
 - **116 pytest cases passed**, Ruff passed, wheel/sdist built.

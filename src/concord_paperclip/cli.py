@@ -12,7 +12,7 @@ def main():
     parser.add_argument("--config")
     parser.add_argument("command", choices=["serve", "doctor", "drain", "native", "inspect", "recover", "backup",
                                              "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client",
-                                             "receive", "probe", "gateway-context"])
+                                             "receive", "probe", "gateway-context", "stdio-handoff"])
     parser.add_argument("--task")
     parser.add_argument("--version", type=int)
     parser.add_argument("--issue")
@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--destination")
     parser.add_argument("--socket")
     parser.add_argument("--group-id", type=int)
+    parser.add_argument("--handoff")
     args = parser.parse_args()
     try:
         if args.command == "native-client":
@@ -30,6 +31,12 @@ def main():
             return
         if not args.config:
             raise BridgeError("CONFIG_REQUIRED")
+        if args.command == "stdio-handoff":
+            from .handoff import resume_stdio
+            asyncio.run(resume_stdio(args.config, args.handoff))
+            return
+        if args.handoff is not None:
+            raise BridgeError("HANDOFF_COMMAND_REQUIRED")
         config = load_config(args.config)
         if args.command == "broker":
             from .broker import serve

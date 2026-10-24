@@ -11,6 +11,7 @@ import subprocess
 import time
 import uuid
 
+from .config import verifier_config
 from .policy import BridgeError, contains, relative_path, tokenish
 from .store import canonical
 
@@ -132,8 +133,7 @@ def import_result(engine, task_id, result, expected_seccomp=None):
 
 def receive(engine, config):
     engine.actor.require("coordinator")
-    if not config.get("verifier_seccomp_profile"):
-        raise BridgeError("VERIFIER_POLICY_REQUIRED")
+    config = verifier_config(config)
     with engine.store.connect() as c:
         tasks = [r[0] for r in c.execute("SELECT id FROM tasks WHERE state IN ('running','execution_completed')")]
     results = []

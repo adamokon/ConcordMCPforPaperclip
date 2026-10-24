@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -93,7 +94,8 @@ def test_official_mcp_sdk_real_stdio_subprocess(http_server, tmp_path):
     config.write_text(json.dumps({"base_url": url, "company_id": "company", "project_id": "project",
                                   "principal": "test", "database": str(tmp_path/"state.db")}))
     async def run():
-        params = StdioServerParameters(command=sys.executable, args=["-m", "concord_paperclip.cli",
+        params = StdioServerParameters(command=sys.executable,
+                                       env={"PYTHONPATH": os.environ.get("PYTHONPATH", "")}, args=["-m", "concord_paperclip.cli",
                                        "--config", str(config), "serve"])
         async with stdio_client(params) as (read, write):
             async with ClientSession(read, write) as session:

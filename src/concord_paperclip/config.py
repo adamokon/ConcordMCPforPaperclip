@@ -1,3 +1,5 @@
+import copy
+import hashlib
 import json
 import os
 import stat
@@ -10,16 +12,79 @@ from .policy import BridgeError, Principal
 from .store import Store
 
 
-def load_config(path):
-    p = Path(path)
-    mode = p.stat()
-    if p.is_symlink() or mode.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
-        raise BridgeError("UNSAFE_CONFIG")
-    config = json.loads(p.read_text())
-    role = config.get("role", "coordinator")
-    if role not in {"coordinator", "worker", "reader"}:
-        raise BridgeError("INVALID_ROLE")
-    return config
+_VERIFIER_POLICY = "verifier_seccomp_profile"
+
+
+def _read_config(path, *, expected_sha256=None):
+    """Open every component without following symlinks; validate the opened inode."""
+    fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for component in path.parts[1:-1]:
+            next_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = next_fd
+        file_fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+        with os.fdopen(file_fd, "rb") as stream:
+            mode = os.fstat(stream.fileno())
+            if not stat.S_ISREG(mode.st_mode) or mode.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+                raise BridgeError("UNSAFE_CONFIG")
+            raw = stream.read()
+            if expected_sha256 is not None and hashlib.sha256(raw).hexdigest() != expected_sha256:
+                raise BridgeError("HANDOFF_CONFIG_MISMATCH")
+            try:
+                config = json.loads(raw.decode("utf-8"))
+            except (ValueError, UnicodeError):
+                raise BridgeError("INVALID_CONFIG") from None
+        if not isinstance(config, dict):
+            raise BridgeError("INVALID_CONFIG")
+        if config.get("role", "coordinator") not in ("coordinator", "worker", "reader"):
+            raise BridgeError("INVALID_ROLE")
+        return config, (mode.st_uid, mode.st_gid)
+    except OSError:
+        raise BridgeError("UNSAFE_CONFIG", "Trusted configuration unavailable or unsafe") from None
+    finally:
+        os.close(fd)
+
+
+def _frozen_boundary(config):
+    # Freeze everything except this explicitly reloadable policy. This also covers
+    # future credential/authority fields without maintaining a fragile allowlist.
+    return json.dumps({k: v for k, v in config.items() if k != _VERIFIER_POLICY}, sort_keys=True)
+
+
+class _TrustedConfig(dict):
+    def __init__(self, config, path, owner):
+        super().__init__(config)
+        self._origin = path
+        self._owner = owner
+        self._boundary = _frozen_boundary(config)
+
+    def verifier_config(self):
+        current, owner = _read_config(self._origin)
+        if (owner != self._owner or _frozen_boundary(current) != self._boundary
+                or _frozen_boundary(self) != self._boundary):
+            raise BridgeError("CONFIG_RESTART_REQUIRED", "Trusted configuration boundary changed; restart required")
+        # Never merge new credentials, commands or targets into the running server.
+        result = copy.deepcopy(dict(self))
+        result[_VERIFIER_POLICY] = current.get(_VERIFIER_POLICY)
+        return result
+
+
+def load_config(path, *, expected_sha256=None):
+    # Bind only at trusted startup, never from an MCP argument or a dict key.
+    origin = Path(os.path.abspath(path))
+    config, owner = _read_config(origin, expected_sha256=expected_sha256)
+    return _TrustedConfig(config, origin, owner)
+
+
+def verifier_config(config):
+    current = config.verifier_config() if isinstance(config, _TrustedConfig) else config
+    policy = current.get(_VERIFIER_POLICY)
+    if policy is None or policy == "":
+        raise BridgeError("VERIFIER_POLICY_REQUIRED")
+    if not isinstance(policy, str) or not policy.strip() or "\x00" in policy:
+        raise BridgeError("INVALID_VERIFIER_POLICY")
+    return current
 
 
 def make_engine(config):
