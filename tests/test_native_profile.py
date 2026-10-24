@@ -24,7 +24,11 @@ class TestNativeProfile(unittest.TestCase):
             '(subpath "/opt/workspace")',
             '(subpath "/System/Library")',
             '(subpath "/System/Volumes/Preboot/Cryptexes/OS")',
-            '(subpath "/usr")',
+            '(subpath "/usr/bin")',
+            '(subpath "/usr/sbin")',
+            '(subpath "/usr/lib")',
+            '(subpath "/usr/libexec")',
+            '(subpath "/usr/share")',
             '(literal "/")',
             '(literal "/dev/null")',
             '(literal "/dev/random")',
@@ -35,7 +39,7 @@ class TestNativeProfile(unittest.TestCase):
             "(deny network*)",
         ]:
             self.assertIn(expected, pol)
-        for bad in ['(subpath "/System")', "(allow default)", "mach-lookup", "(allow signal\n", "(allow signal)"]:
+        for bad in ['(subpath "/System")', '(subpath "/usr")', '(subpath "/usr/local")', "(allow default)", "mach-lookup", "(allow signal\n", "(allow signal)"]:
             self.assertNotIn(bad, pol)
         self.assertEqual(pol.count("file-write*"), 1)
 

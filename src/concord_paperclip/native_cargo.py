@@ -24,7 +24,7 @@ import time
 import uuid
 
 from .bounded_process import run_bounded
-from .native_profile import environment, profile
+from .native_profile import environment, profile, validate_path
 from .source_snapshot import MAX_RAW_SIZE, decode_snapshot, materialize_files
 
 
@@ -56,8 +56,31 @@ def load_policy(path):
         raise NativeExecutionError("Invalid policy file")
     policy = json.loads(path.read_text())
     keys = {"work_root", "toolchain", "developer", "sdk", "uid", "gid", "target", "timeout", "max_output"}
-    if type(policy) is not dict or set(policy) != keys:
+    if type(policy) is not dict or not keys <= set(policy) or set(policy) - keys - {"dependencies", "package", "no_default_features"}:
         raise NativeExecutionError("Invalid policy schema")
+    if "no_default_features" in policy and type(policy["no_default_features"]) is not bool:
+        raise NativeExecutionError("Invalid operator feature policy")
+    if "package" in policy and (not isinstance(policy["package"], str) or
+                                not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", policy["package"])):
+        raise NativeExecutionError("Invalid operator Cargo package")
+    if "dependencies" in policy:
+        dependency = policy["dependencies"]
+        if type(dependency) is not dict or not {"path", "sha256"} <= set(dependency) or set(dependency) - {"path", "sha256", "native"}:
+            raise NativeExecutionError("Invalid dependency closure")
+        if "native" in dependency and type(dependency["native"]) is not bool:
+            raise NativeExecutionError("Invalid native library policy")
+        validate_path(dependency["path"])
+        if type(dependency["sha256"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", dependency["sha256"]):
+            raise NativeExecutionError("Invalid dependency manifest digest")
+        cache = _root_path(dependency["path"])
+        _root_path(str(cache / "vendor"))
+        manifest = _root_path(str(cache / "manifest.json"), directory=False)
+        if hashlib.sha256(manifest.read_bytes()).hexdigest() != dependency["sha256"]:
+            raise NativeExecutionError("Dependency manifest digest mismatch")
+        if dependency.get("native"):
+            for relative in ("native/openssl", "native/zstd", "native/pkgconfig"):
+                _root_path(str(cache / relative))
+            _root_path(str(cache / "native/bin/pkg-config"), directory=False)
     for name in ("work_root", "toolchain", "developer", "sdk"):
         _root_path(policy[name])
     for name in ("uid", "gid"):
@@ -140,7 +163,7 @@ def _cleanup_uid(uid):
     raise NativeExecutionError("Build identity still owns processes; executor remains unavailable")
 
 
-def _fixture_recipe(toolchain, source, recipe):
+def _fixture_recipe(toolchain, source, recipe, package=None, no_default_features=False):
     argv = [str(toolchain / "bin" / "cargo")]
     if recipe == "cargo-check":
         argv += ["check"]
@@ -149,6 +172,10 @@ def _fixture_recipe(toolchain, source, recipe):
     else:
         raise NativeExecutionError("Unknown fixed recipe")
     argv += ["--offline", "--locked", "--manifest-path", str(source / "Cargo.toml")]
+    if package is not None:
+        argv += ["--package", package]
+    if no_default_features:
+        argv += ["--no-default-features"]
     if recipe == "macos-filesystem":
         argv += ["--test", "macos_filesystem"]
     return argv
@@ -159,6 +186,8 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
         raise NativeExecutionError("Trusted root launcher required to drop build identity")
     if not shutil.rmtree.avoids_symlink_attacks:
         raise NativeExecutionError("Symlink-safe workspace cleanup unavailable")
+    code_hashes = {name: hashlib.sha256(Path(__file__).with_name(name + ".py").read_bytes()).hexdigest()
+                   for name in ("native_cargo", "native_profile", "bounded_process", "source_snapshot")}
     task_id, run_id = str(uuid.UUID(task_id)), str(uuid.UUID(run_id))
     if not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise NativeExecutionError("Invalid source digest")
@@ -193,10 +222,23 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
         env["CARGO_TARGET_DIR"] = str(workspace / "target")
         sb = profile(str(workspace), policy["toolchain"], policy["developer"])
         sb += f"(allow file-read* (subpath {json.dumps(str(source))}))\n"
+        if "dependencies" in policy:
+            cache = policy["dependencies"]["path"]
+            sb += f"(allow file-read* (subpath {json.dumps(cache)}))\n"
+            config = ('[source.crates-io]\nreplace-with = "operator-vendor"\n'
+                      '[source.operator-vendor]\ndirectory = ' + json.dumps(cache + "/vendor") + '\n')
+            config_path = workspace / "cargo-home" / "config.toml"
+            config_path.write_text(config)
+            config_path.chmod(0o644)
+            if policy["dependencies"].get("native"):
+                env.update(OPENSSL_DIR=cache + "/native/openssl", OPENSSL_STATIC="1",
+                           PKG_CONFIG=cache + "/native/bin/pkg-config", PKG_CONFIG_ALL_STATIC="1",
+                           PKG_CONFIG_LIBDIR=cache + "/native/pkgconfig", ZSTD_SYS_USE_PKG_CONFIG="1")
         sandbox = job / "sandbox.sb"
         sandbox.write_text(sb)
         sandbox.chmod(0o644)
-        argv = ["/usr/bin/sandbox-exec", "-f", str(sandbox)] + _fixture_recipe(Path(policy["toolchain"]), source, recipe)
+        argv = ["/usr/bin/sandbox-exec", "-f", str(sandbox)] + _fixture_recipe(
+            Path(policy["toolchain"]), source, recipe, policy.get("package"), policy.get("no_default_features", False))
         try:
             result = run_bounded(argv, str(workspace), env, policy["timeout"], policy["max_output"],
                                  uid=policy["uid"], gid=policy["gid"])
@@ -209,10 +251,14 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
         (job / "output.log").write_bytes(output)
         receipt = dict(schema_version=1, task_id=task_id, run_id=run_id, commit=snapshot["commit"],
                        source_sha256=digest, policy_sha256=policy_hash, recipe=recipe,
+                       package=policy.get("package"), no_default_features=policy.get("no_default_features", False),
                        execution_target=policy["target"], build_uid=policy["uid"],
                        credential_free=True, network="deny-all", input_readonly=True,
                        environment_removed=True, **result)
         receipt["system_services_exempted"] = _uid_inventory(policy["uid"])[1]
+        receipt["executor_files_sha256"] = code_hashes
+        if "dependencies" in policy:
+            receipt["dependencies_sha256"] = policy["dependencies"]["sha256"]
         receipt["toolchain_sha256"] = {name: hashlib.sha256((Path(policy["toolchain"]) / "bin" / name).read_bytes()).hexdigest()
                                        for name in ("cargo", "rustc", "rustdoc")}
         (job / "receipt.json").write_bytes(canonical(receipt) + b"\n")

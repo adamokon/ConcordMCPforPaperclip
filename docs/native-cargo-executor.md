@@ -53,11 +53,28 @@ read-only input; writable HOME, temporary files and Cargo target are per-run.
 No source-controlled `.cargo/config.toml` is loaded from the source directory:
 Cargo starts in the independent scratch directory with an explicit manifest.
 
-Cargo always uses `--offline --locked`. Current recipes require dependencies
-already supplied as source: automatic dependency downloads and a general vendor
-cache are not implemented. A dependency-free Rust fixture has been executed
-successfully through all three recipes on native Apple Silicon macOS. A full PBS
-client build has not yet passed through this executor.
+Cargo always uses `--offline --locked`. An optional operator-owned `package`
+policy selects a single Cargo package; an operator-owned boolean
+`no_default_features` can disable its default feature set. Optional `dependencies` contains a
+canonical root-owned `path` and the `sha256` of its root-owned `manifest.json`.
+Its `vendor/` contains the dependency sources prepared by trusted `cargo vendor`.
+The operator must verify all files and directories are root-owned, readable by
+the build UID and not writable by it before enabling a cache. Cargo verifies
+registry checksums; the receipt binds the cache provenance manifest digest.
+The verifier does not fetch or populate this cache.
+
+An optional boolean `dependencies.native` enables a fixed layout of native
+libraries: `native/openssl`, `native/zstd`, `native/bin/pkg-config` and
+`native/pkgconfig`. The operator copies and verifies the selected system package
+artifacts into the read-only closure and records versions, hashes and any binary
+relocation. The verifier supplies fixed static-link and pkg-config environment
+variables; model-supplied compiler environment is not accepted.
+
+A dependency-free Rust fixture has executed successfully through all three
+recipes on native Apple Silicon macOS. The actual modified Proxmox xattr module
+and original proxmox-io sources have also compiled and passed tests using an
+offline source cache. Full PBS client compilation has reached genuine Darwin
+portability errors; it has not yet passed.
 
 ## Evidence and limitations
 
@@ -75,6 +92,6 @@ local operator artifact, not a remotely signed attestation. Retention/cleanup of
 bounded root-owned receipts remains the operator's responsibility.
 
 Before advertising repository support in Paperclip, wire staging and receipts
-into its existing lifecycle, implement cancellation/recovery, supply pinned
-offline dependencies, and remove generated-code testing from the original
+into its existing lifecycle, implement cancellation/recovery, automate reviewed
+offline dependency closure preparation, and remove generated-code testing from the original
 provider-credential pod. These steps remain outstanding.

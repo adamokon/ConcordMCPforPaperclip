@@ -59,7 +59,7 @@ def profile(workspace: str, toolchain: str, developer: str) -> str:
         "(deny default)",
         "(allow process-exec process-fork sysctl-read file-read-metadata)",
         "(allow signal (target self) (target children))",
-        f'(allow file-read* (subpath "/System/Library") (subpath "/System/Volumes/Preboot/Cryptexes/OS") (subpath "/usr") (subpath {q_dev}) (subpath {q_tc}) (subpath {q_ws}))',
+        f'(allow file-read* (subpath "/System/Library") (subpath "/System/Volumes/Preboot/Cryptexes/OS") (subpath "/usr/bin") (subpath "/usr/sbin") (subpath "/usr/lib") (subpath "/usr/libexec") (subpath "/usr/share") (subpath {q_dev}) (subpath {q_tc}) (subpath {q_ws}))',
         '(allow file-read* (literal "/") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/ssl/openssl.cnf"))',
         f'(allow file-write* (subpath {q_ws}) (literal "/dev/null"))',
         "(deny network*)",
