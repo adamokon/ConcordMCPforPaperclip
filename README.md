@@ -14,6 +14,14 @@ See [policy reload](docs/verifier-policy-reload.md) and the guarded
 worker, receipt, independent sandbox and operator-review path. See [v0.2](docs/V02.md), [test evidence](docs/TESTING.md)
 and [limitations](docs/LIMITATIONS.md) before enabling execution.
 
+## Polish project brief and archive
+
+See the [one-page A4 brief](docs/pl/opis-dla-szefa.pdf),
+[project purpose and provenance](docs/pl/PROJEKT.md),
+[native Codex pilot](docs/pl/ODBIOR-CODEX.md) and [archive map](ARCHIVE.md).
+The Codex pilot uses operator-assisted receipt and recovery handling; it does
+not demonstrate an unattended collector for every Paperclip adapter.
+
 ## Why this exists
 
 A message addressed to a process that already exited cannot wake that process.

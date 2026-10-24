@@ -21,7 +21,7 @@ packages = ["src/concord_paperclip"]
 
 [tool.hatch.build.targets.sdist]
 include = ["/src", "/tests", "/scripts", "/examples", "/docs", "/README.md", "/LICENSE",
-           "/pyproject.toml", "/uv.lock", "/.github", "/AGENTS.md", "/.gitignore"]
+           "/pyproject.toml", "/uv.lock", "/.github", "/AGENTS.md", "/ARCHIVE.md", "/.gitignore"]
 exclude = ["**/__pycache__", "**/*.pyc", "/site-private", "/.venv"]
 
 [tool.pytest.ini_options]

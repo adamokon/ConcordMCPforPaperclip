@@ -48,3 +48,7 @@ See [v0.2 design and acceptance boundaries](V02.md). Next priorities are an
 operator-compatible native cancellation path and removing the original worker's
 credential-bearing test step before broader workloads. Add live cross-harness
 messaging when a concrete workload benefits from it.
+
+## Native Codex pilot
+
+The 2026-10-24 native `codex_local` pilot completed submission, execution, exact-file receipt, independent verification, MCP artifact readback and final review. Receipt was operator-assisted. Keeping the issue in_progress triggered native disposition recovery and another run; parking in_review and operator resolution of the executor-owned recovery were required before the scoped coordinator could finalize Done. The bridge key was not widened. An automatic native Codex collector and formal review handoff remain future work. See the [pilot report](pl/ODBIOR-CODEX.md).

@@ -1,0 +1,16 @@
+Files:
+- duration.py
+- test_duration.py
+- RESULT.txt
+
+Actual test command: python3 -m unittest -v
+Exit code: 0
+Observed outcome:
+test_boundaries (test_duration.FormatDurationTests.test_boundaries) ... ok
+test_invalid_types (test_duration.FormatDurationTests.test_invalid_types) ... ok
+test_negative_integer (test_duration.FormatDurationTests.test_negative_integer) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

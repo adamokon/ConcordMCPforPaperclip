@@ -13,3 +13,6 @@ site-private/
 node_modules/
 vendor/
 evidence-local/
+
+# Local release snapshots; public content is tracked in source directories.
+/archive/

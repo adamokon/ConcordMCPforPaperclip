@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-24",
+  "bridge_version": "0.2.1",
+  "adapter": "codex_local",
+  "model_configured": "gpt-6.1-sol",
+  "model_provider_confirmed": false,
+  "receipt_mode": "operator-assisted",
+  "original_manifest_digest": "27b49752643e370e1322a1eb8bd43576d5b50457bfb41db405d9fdb47bc8e329",
+  "private_run_bindings_omitted": true,
+  "files": [
+    {
+      "path": "RESULT.txt",
+      "sha256": "f2d798270387d982871ea315edb0503ed830e35c90fb94e6c3adcf7fe325bfcd",
+      "size": 470
+    },
+    {
+      "path": "duration.py",
+      "sha256": "4eb5532bf649f2eebd8422c78987cb7784c9275d6d87749b2d33e2f114de43cc",
+      "size": 451
+    },
+    {
+      "path": "test_duration.py",
+      "sha256": "e1252e7b95a6101a97e554e5e4a1bc7251e986769491fd60906229bdde9bc485",
+      "size": 960
+    }
+  ],
+  "independent_tests": {
+    "sandbox": "separate K3s Job",
+    "status": "passed",
+    "credential_free": true,
+    "network_policy": "deny-all",
+    "seccomp": "network and io_uring blocked",
+    "worker_unittest_methods": 3,
+    "operator_roundtrip_cases": 400001,
+    "operator_huge_integer_case": true
+  },
+  "interventions": [
+    "operator snapshots exact first successful native run",
+    "operator parks issue in_review after native disposition retry",
+    "operator resolves executor-owned stale recovery without widening bridge key"
+  ],
+  "final_state": "complete",
+  "paperclip_final_status": "done",
+  "journal_final_version": 9,
+  "remaining_claims": 0,
+  "active_attempts": 0
+}
