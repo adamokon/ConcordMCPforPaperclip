@@ -1,6 +1,7 @@
 """Native macOS Seatbelt profile and clean Cargo environment generator."""
 
 import json
+from pathlib import Path
 import unicodedata
 
 PROHIBITED_ROOTS = {
@@ -64,6 +65,10 @@ def profile(workspace: str, toolchain: str, developer: str) -> str:
         f'(allow file-write* (subpath {q_ws}) (literal "/dev/null"))',
         "(deny network*)",
     ]
+    # Opening ancestors is needed for descriptor-relative absolute traversal;
+    # literal rules grant no access to their child files.
+    ancestors = [str(parent) for parent in Path(ws).parents]
+    lines.append("(allow file-read* " + " ".join("(literal " + _quote(parent) + ")" for parent in ancestors) + ")")
     return "\n".join(lines) + "\n"
 
 

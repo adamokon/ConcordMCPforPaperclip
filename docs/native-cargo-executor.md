@@ -73,8 +73,14 @@ variables; model-supplied compiler environment is not accepted.
 A dependency-free Rust fixture has executed successfully through all three
 recipes on native Apple Silicon macOS. The actual modified Proxmox xattr module
 and original proxmox-io sources have also compiled and passed tests using an
-offline source cache. Full PBS client compilation has reached genuine Darwin
-portability errors; it has not yet passed.
+offline source cache. The full native PBS client also compiles through this executor. The fixed
+`cargo-build` recipe requires an operator-selected `package` and builds only its
+same-named binary. After all build-UID processes stop, the launcher retains one
+bounded, regular Mach-O file opened without following target/debug symlinks.
+Its root-owned copy, length and SHA-256 appear in the receipt. It is an untrusted
+build product and is not executed by the builder/export step. Source and scratch
+are removed as for verification recipes. Integration tests run under a different
+identity and receive only a separately scoped test credential.
 
 ## Evidence and limitations
 

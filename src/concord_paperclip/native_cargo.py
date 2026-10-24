@@ -167,6 +167,10 @@ def _fixture_recipe(toolchain, source, recipe, package=None, no_default_features
     argv = [str(toolchain / "bin" / "cargo")]
     if recipe == "cargo-check":
         argv += ["check"]
+    elif recipe == "cargo-build":
+        if package is None:
+            raise NativeExecutionError("Build recipe requires an operator-selected package")
+        argv += ["build", "--bin", package]
     elif recipe in ("cargo-test", "macos-filesystem"):
         argv += ["test"]
     else:
@@ -180,6 +184,43 @@ def _fixture_recipe(toolchain, source, recipe, package=None, no_default_features
         argv += ["--test", "macos_filesystem"]
     return argv
 
+
+
+def _retain_binary(directory, job, name):
+    """Copy a bounded regular Mach-O only after all build-UID processes stop."""
+    target = os.open(directory.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        parent = os.open(directory.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=target)
+    finally:
+        os.close(target)
+    try:
+        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+    finally:
+        os.close(parent)
+    with os.fdopen(descriptor, "rb") as source:
+        metadata = os.fstat(source.fileno())
+        if not stat.S_ISREG(metadata.st_mode) or not 4 <= metadata.st_size <= 512 * 1024 * 1024:
+            raise NativeExecutionError("Invalid build artifact type or size")
+        magic = source.read(4)
+        if magic not in (b"\xcf\xfa\xed\xfe", b"\xfe\xed\xfa\xcf"):
+            raise NativeExecutionError("Build artifact must be a native Mach-O executable")
+        output = job / "artifact"
+        digest = hashlib.sha256()
+        with output.open("xb") as destination:
+            destination.write(magic)
+            digest.update(magic)
+            remaining = metadata.st_size - 4
+            while remaining:
+                chunk = source.read(min(remaining, 1024 * 1024))
+                if not chunk:
+                    raise NativeExecutionError("Build artifact truncated")
+                digest.update(chunk)
+                destination.write(chunk)
+                remaining -= len(chunk)
+            if source.read(1):
+                raise NativeExecutionError("Build artifact grew")
+        output.chmod(0o500)
+        return dict(name=name, path=str(output), size=metadata.st_size, sha256=digest.hexdigest())
 
 def execute(raw, digest, policy_path, recipe, task_id, run_id):
     if os.geteuid() != 0:
@@ -239,9 +280,13 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
         sandbox.chmod(0o644)
         argv = ["/usr/bin/sandbox-exec", "-f", str(sandbox)] + _fixture_recipe(
             Path(policy["toolchain"]), source, recipe, policy.get("package"), policy.get("no_default_features", False))
+        artifact = None
         try:
             result = run_bounded(argv, str(workspace), env, policy["timeout"], policy["max_output"],
                                  uid=policy["uid"], gid=policy["gid"])
+            if recipe == "cargo-build" and result["status"] == "passed":
+                _cleanup_uid(policy["uid"])
+                artifact = _retain_binary(workspace / "target" / "debug", job, policy["package"])
         finally:
             _cleanup_uid(policy["uid"])
             shutil.rmtree(workspace)
@@ -255,6 +300,8 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
                        execution_target=policy["target"], build_uid=policy["uid"],
                        credential_free=True, network="deny-all", input_readonly=True,
                        environment_removed=True, **result)
+        if artifact is not None:
+            receipt["artifact"] = artifact
         receipt["system_services_exempted"] = _uid_inventory(policy["uid"])[1]
         receipt["executor_files_sha256"] = code_hashes
         if "dependencies" in policy:
@@ -269,7 +316,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy", required=True)
     parser.add_argument("--sha256", required=True)
-    parser.add_argument("--recipe", choices=["cargo-check", "cargo-test", "macos-filesystem"], required=True)
+    parser.add_argument("--recipe", choices=["cargo-check", "cargo-test", "macos-filesystem", "cargo-build"], required=True)
     parser.add_argument("--task-id", required=True)
     parser.add_argument("--run-id", required=True)
     args = parser.parse_args()

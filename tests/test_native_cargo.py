@@ -117,3 +117,28 @@ def test_rejects_bad_dependency_policy(tmp_path, dependency):
     with patch.object(native_cargo, "_root_path", side_effect=lambda value, **kw: Path(value)):
         with pytest.raises(ValueError):
             native_cargo.load_policy(str(path))
+
+
+def test_build_recipe_requires_fixed_package():
+    with pytest.raises(native_cargo.NativeExecutionError):
+        native_cargo._fixture_recipe(Path("/tools"), Path("/source"), "cargo-build")
+    argv = native_cargo._fixture_recipe(Path("/tools"), Path("/source"), "cargo-build", "client")
+    assert argv[1:4] == ["build", "--bin", "client"]
+
+
+def test_artifact_rejects_links_and_non_macho(tmp_path):
+    inputs, output = tmp_path / "inputs", tmp_path / "out"
+    inputs.mkdir()
+    output.mkdir()
+    (inputs / "binary").write_bytes(b"plain text")
+    with pytest.raises(native_cargo.NativeExecutionError):
+        native_cargo._retain_binary(inputs, output, "binary")
+    (inputs / "link").symlink_to(inputs / "binary")
+    with pytest.raises(OSError):
+        native_cargo._retain_binary(inputs, output, "link")
+    raw = b"\xcf\xfa\xed\xfe" + b"artifact fixture"
+    (inputs / "binary").write_bytes(raw)
+    result = native_cargo._retain_binary(inputs, output, "binary")
+    assert result["sha256"] == hashlib.sha256(raw).hexdigest()
+    assert (output / "artifact").read_bytes() == raw
+    assert (output / "artifact").stat().st_mode & 0o777 == 0o500
