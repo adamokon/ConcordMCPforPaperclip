@@ -15,6 +15,10 @@ See [native receipt deployment and E2E recipe](docs/native-codex-receipt.md).
 A genuinely new production readiness fix was also received, independently tested,
 reviewed through MCP and finalized without operator intervention; see the
 [0.3.1 real-code acceptance](docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md).
+The [Codex–Antigravity cooperation trial](docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md)
+verified Codex receipt and a real Concord question delivered to a coordinator
+proxy. Infrastructure connectivity failed during Antigravity execution;
+bidirectional cooperation and final acceptance remain unverified.
 
 Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.
