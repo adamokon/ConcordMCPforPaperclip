@@ -242,6 +242,7 @@ class Engine:
             attempt_id = str(uuid.uuid4())
             c.execute("INSERT INTO attempts VALUES(?,?,?,?,?,?,?)",
                       (attempt_id, task_id, profile["id"], number, "dispatching", None, None))
+            self.store.audit(c, self.actor.name, task_id, "attempt_dispatched", {"attempt_id": attempt_id})
             self._set(c, task_id, "dispatching")
         try:
             issue = self.backend.patch(task["issue_id"], {"status": "todo", "assigneeAgentId": profile["id"]})
@@ -266,6 +267,9 @@ class Engine:
             task = self._task(c, task_id)
         issue = self.backend.issue(task["issue_id"])
         with self.store.transaction() as c:
+            task = self._task(c, task_id)
+            if task["state"] in {"review_ready", "verification_failed", "review_queued"}:
+                return self._view(task)
             if task["state"] in {"complete", "cancelled"}:
                 return {"state": task["state"], "remote_status": issue.get("status")}
             if terminal_run is not None:
@@ -366,11 +370,13 @@ class Engine:
         return self.submit(key, "Continue: " + spec["title"][:180], description, spec["repo"], spec["paths"],
                            parent_id=task_id, inputs=inputs)
 
-    def review(self, key, task_id, version, digest, tests, notes):
+    def review(self, key, task_id, version, digest, tests, notes, *, machine_policy=None):
         self.actor.require("coordinator")
         if not isinstance(tests, list) or not tests or not all(isinstance(x, str) and x for x in tests):
             raise BridgeError("TEST_ATTESTATION_REQUIRED")
         payload = dict(task_id=task_id, version=version, digest=digest, tests=tests, notes=notes)
+        if machine_policy is not None:
+            payload["machine_policy"] = machine_policy
         with self.store.transaction() as c:
             task = self._task(c, task_id)
             old = self._operation(c, key, "review", payload, task_id)
@@ -385,6 +391,9 @@ class Engine:
             if not manifest or manifest["digest"] != digest:
                 raise BridgeError("MANIFEST_MISMATCH")
             # Claim locks are retained until the remote close is confirmed.
+            if machine_policy is not None:
+                self.store.audit(c, self.actor.name, task_id, "machine_approval",
+                                 {**machine_policy, "digest": digest, "kind": "bounded_synthetic"})
             self._set(c, task_id, "review_queued")
         return {"state": "review_queued", "attestation": "operator_reported", "digest": digest}
 
@@ -393,12 +402,35 @@ class Engine:
         with self.store.connect() as c:
             rows = [dict(r) for r in c.execute("SELECT * FROM tasks WHERE state='review_queued'")]
         for task in rows:
-            # Finalize status only; do NOT accept an interaction that could re-trigger Todo.
-            # Native interaction acceptance stays an explicit operator operation in v0.1.
             remote = self.backend.issue(task["issue_id"])
             if remote.get("executionRunId") or remote.get("checkoutRunId"):
                 raise BridgeError("REMOTE_EXECUTION_LOCKED")
-            self.backend.patch(task["issue_id"], {"status": "done"})
+            with self.store.connect() as c:
+                native_required = c.execute("SELECT 1 FROM audit WHERE task_id=? AND event='native_review_required'",
+                                            (task["id"],)).fetchone()
+                attempt = c.execute("SELECT profile FROM attempts WHERE task_id=? ORDER BY number DESC LIMIT 1",
+                                    (task["id"],)).fetchone()
+            native_required = native_required or any(
+                p.get("id") == (attempt["profile"] if attempt else None) and p.get("adapter_type") == "codex_local"
+                for p in self.profiles)
+            if native_required:
+                if not getattr(self, "native_coordinator_id", None):
+                    raise BridgeError("NATIVE_CONTEXT_REQUIRED")
+                from .native_review import accept
+                accept(self, task, self.artifacts(task["id"], True)["manifest"])
+                remote = self.backend.issue(task["issue_id"])
+                if remote.get("status") != "done":
+                    raise BridgeError("NATIVE_COMPLETION_NOT_CONFIRMED")
+            if remote.get("status") != "done":
+                with self.store.transaction() as c:
+                    prior = c.execute("SELECT 1 FROM audit WHERE task_id=? AND event='close_intent'",
+                                      (task["id"],)).fetchone()
+                    if prior:
+                        raise BridgeError("CLOSE_WRITE_REQUIRES_RECONCILIATION")
+                    self.store.audit(c, self.actor.name, task["id"], "close_intent")
+                # An uncertain write is never repeated. A later GET confirming Done
+                # finishes the journal; otherwise the operator reconciles the intent.
+                self.backend.patch(task["issue_id"], {"status": "done"})
             confirmed = self.backend.issue(task["issue_id"])
             if confirmed.get("status") != "done":
                 raise BridgeError("REVIEW_NOT_CONFIRMED")

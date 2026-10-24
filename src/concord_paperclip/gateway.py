@@ -134,10 +134,45 @@ def call_apply(command, obj):
         raise BridgeError("SANDBOX_POLICY_FAILED")
 
 
+def native_backend(config):
+    # The fixed credential supplier belongs to the operator gateway, never MCP.
+    from .paperclip import Paperclip
+    p = subprocess.run(config["native_token_command"], capture_output=True, timeout=10,
+                       env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"})
+    if p.returncode or len(p.stdout) > 16384:
+        raise BridgeError("NATIVE_CREDENTIAL_UNAVAILABLE")
+    return Paperclip(config["base_url"], config["company_id"], p.stdout.decode().strip(),
+                     trusted_http_hosts=config.get("trusted_http_hosts", []))
+
+
+def native_call(config, operation):
+    """Optional ephemeral operator lease never leaves the root gateway."""
+    backend = native_backend(config)
+    try:
+        return operation(backend)
+    finally:
+        if config.get("native_token_revoke_command"):
+            from .fixed_command import call
+            try:
+                result = call(config["native_token_revoke_command"], {"token": backend.token},
+                              timeout=10, limit=32768)
+                if result != {"revoked": True}:
+                    raise BridgeError("NATIVE_LEASE_REVOCATION_FAILED")
+            finally:
+                backend.token = ""
+
+
 def execute(config, request):
     if not isinstance(request, dict):
         raise BridgeError("INVALID_REQUEST")
     if request == {"action": "probe"}:
+        native_profiles = {k: v for k, v in config["profiles"].items()
+                           if isinstance(v, dict) and v.get("adapter_type") == "codex_local"}
+        if native_profiles:
+            if len(native_profiles) != len(config["profiles"]):
+                raise BridgeError("SEPARATE_NATIVE_GATEWAY_REQUIRED")
+            from .codex_receipt import probe
+            return native_call(config, lambda backend: probe(config, backend))
         roster = call(config["telemetry_command"], {"action": "probe"})
         result = {}
         for agent in roster:
@@ -155,8 +190,18 @@ def execute(config, request):
     context = call(config["context_command"] + ["--task", task_id])
     if context["state"] not in {"running", "execution_completed"}:
         raise BridgeError("INVALID_STATE")
+    if context.get("task_id") != task_id:
+        raise BridgeError("CONTEXT_TASK_MISMATCH")
     identity = context["profile"]
     profile = config["profiles"][identity]
+    if isinstance(profile, dict) and profile.get("adapter_type") == "codex_local":
+        from .codex_receipt import receive, resolve_recovery
+        def operation(backend):
+            result = receive(config, context, backend)
+            if config.get("resolve_native_recovery") is True and result.get("tests", {}).get("status") == "passed":
+                resolve_recovery(config, context, backend)
+            return result
+        return native_call(config, operation)
     run = call(config["telemetry_command"], {"action": "run", "issue_id": context["issue_id"],
                "agent_id": identity, "after": context["created"]})
     if not run or run["status"] not in {"succeeded", "failed", "cancelled", "timed_out"}:
@@ -184,7 +229,12 @@ def execute(config, request):
 def main():
     os.umask(0o077)
     try:
-        config = json.loads(Path(sys.argv[1]).read_text())
+        from .config import load_config
+        config = load_config(sys.argv[1])
+        if any(isinstance(p, dict) and p.get("adapter_type") == "codex_local"
+               for p in config.get("profiles", {}).values()):
+            from .config import require_root_config
+            require_root_config(sys.argv[1])
         raw = sys.stdin.buffer.read(4097)
         if len(raw) > 4096:
             raise BridgeError("REQUEST_TOO_LARGE")

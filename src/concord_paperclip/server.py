@@ -1,7 +1,6 @@
 """Official MCP SDK, stdio only. OS/SSH is the authentication boundary."""
 
 import asyncio
-import json
 
 from mcp.server.fastmcp import FastMCP
 
@@ -21,23 +20,8 @@ def build_server(engine, config):
             return {"ok": False, "code": "INTERNAL_ERROR", "summary": "Details withheld; inspect local diagnostics"}
 
     def wake(marker):
-        if not config.get("native_agent_id"):
-            return {"mode": "manual_drain", "running": False}
-        # Journal this separate non-idempotent create. A lost response stays uncertain.
-        with engine.store.transaction() as c:
-            old = engine._operation(c, "wake:" + marker, "wake", {"marker": marker}, marker)
-            if old:
-                return {"mode": "native", "state": old["state"]}
-            c.execute("UPDATE operations SET state='in_flight' WHERE owner=? AND key=?",
-                      (engine.actor.name, "wake:" + marker))
-        try:
-            issue = engine.backend.wake_coordinator(config["native_agent_id"], marker)
-        except Exception:
-            return {"mode": "native", "state": "uncertain", "running": False}
-        with engine.store.transaction() as c:
-            c.execute("UPDATE operations SET state='done',result=? WHERE owner=? AND key=?",
-                      (json.dumps({"issue_id": issue["id"]}), engine.actor.name, "wake:" + marker))
-        return {"mode": "native", "state": "queued", "issue_id": issue["id"]}
+        from .wake import wake as queue_wake
+        return queue_wake(engine, config, marker)
 
     @mcp.tool()
     async def bridge_status() -> dict:

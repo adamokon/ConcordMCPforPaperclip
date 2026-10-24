@@ -62,6 +62,13 @@ def import_result(engine, task_id, result, expected_seccomp=None):
         attempt = c.execute("SELECT * FROM attempts WHERE task_id=? ORDER BY number DESC LIMIT 1",
                             (task_id,)).fetchone()
     if task["state"] == "review_ready":
+        with engine.store.connect() as c:
+            saved = c.execute("SELECT * FROM manifests WHERE task_id=?", (task_id,)).fetchone()
+        record = result.get("snapshot", {})
+        if (not saved or record.get("digest") != saved["digest"]
+                or canonical(record.get("manifest")) != saved["manifest"]
+                or result.get("evidence", {}).get("run_id") != attempt["run_id"]):
+            raise BridgeError("RECEIPT_CONFLICT")
         return {"id": task_id, "state": "review_ready"}
     if task["state"] not in {"running", "execution_completed"} or not attempt:
         raise BridgeError("INVALID_STATE")
@@ -114,7 +121,12 @@ def import_result(engine, task_id, result, expected_seccomp=None):
         engine.observe(task_id, evidence)
     with engine.store.transaction() as c:
         current = engine._task(c, task_id)
+        if result.get("native_review_required") is True:
+            engine.store.audit(c, engine.actor.name, task_id, "native_review_required")
         if current["state"] == "review_ready":
+            saved = c.execute("SELECT digest,manifest FROM manifests WHERE task_id=?", (task_id,)).fetchone()
+            if not saved or saved["digest"] != record["digest"] or saved["manifest"] != canonical(manifest):
+                raise BridgeError("RECEIPT_CONFLICT")
             return {"id": task_id, "state": "review_ready"}
         if current["state"] != "execution_completed":
             raise BridgeError("STALE_VERSION")

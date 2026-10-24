@@ -1,0 +1,18 @@
+[Unit]
+Description=Receive existing native Codex tasks and apply bounded synthetic policy
+After=network.target
+[Service]
+Type=oneshot
+User=concord-codex
+UMask=0077
+LoadCredential=paperclip-token:/etc/concord-codex/task-bridge.token
+LoadCredential=gateway-key:/etc/concord-codex/gateway-key
+ExecStart=/opt/concord-paperclip-venv/bin/python -I -m concord_paperclip.cli --config /etc/concord-codex/receiver.json receive-cycle
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/concord-codex
+MemoryMax=256M
+TimeoutStartSec=180

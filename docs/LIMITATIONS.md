@@ -1,4 +1,4 @@
-# v0.2 limitations and next steps
+# v0.3 limitations and next steps
 
 This release is a tested scoped pilot, not the complete autonomous agent system
 described in the initial design exercise.
@@ -24,9 +24,11 @@ described in the initial design exercise.
 7. Cancellation of a running provider process is not exposed. Marking an issue
    cancelled is insufficient to prove termination; use the native operator
    cancellation and verify the exact Job/pod cleanup before releasing its slot.
-8. Review is an operator attestation bound to a manifest. We do not pretend a
-   client boolean or a generated unittest proves independent verification.
-   Native interaction acceptance and deployment remain separate operations.
+8. General review is a coordinator attestation bound to a manifest. An opt-in
+   root-owned policy may accept only preapproved synthetic file hashes, canonical
+   specification and submission key, following independent isolated tests. A
+   generated unittest or client boolean cannot enable this policy. Native
+   interaction acceptance and deployment remain separate operations.
 9. Concord integration currently registers/inspects a metadata projection. It
    does not mirror all messages, automatically resolve claims or synchronize
    remote task lifecycle. Projection never reopens an existing closed task.
@@ -56,6 +58,6 @@ exact-file receipt, independent verification, MCP artifact readback and final
 review. Receipt was operator-assisted. Keeping the issue in_progress triggered
 native disposition recovery and another run; parking in_review and operator
 resolution of the executor-owned recovery were required before the scoped
-coordinator could finalize Done. The bridge key was not widened. An automatic
-native Codex collector and formal review handoff remain future work.
+coordinator could finalize Done. The bridge key was not widened. This is historical 0.2.1 evidence. Version 0.3.0 implements a separate native
+Codex collector and formal review handoff; see the [native protocol](native-codex-receipt.md).
 See the [pilot report](pl/ODBIOR-CODEX.md).

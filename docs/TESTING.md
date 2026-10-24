@@ -1,3 +1,44 @@
+Revision 5: **376 local tests passed (27.17 s)**. Ruff and sdist/wheel build
+passed. It corrects the false v4 native-agent acceptance fixture; exact commands
+are recorded in the handoff REPORT.
+The replacement HTTP fixture returns agent409 for a real separate control Process
+with no applied native review decision/assignment; it permits only the explicitly
+preselected operator-policy capability, exercises a real fixed subprocess exchange,
+verifies actual board-user resolution and atomic Done, and rejects source Done
+PATCH. Ordinary control mutations still require the real Process run header.
+No fake Process resolver success is accepted. Missing capability, changed contract,
+wrong receipt/resolver, legacy intents and absent effects fail closed. Lost replies
+use GET-only reconciliation. General PASS without review cannot call the hook.
+
+Kernel cleanup, immutable snapshots, failure retention, no-provider disposition
+repair, pre-submit synthetic hash policy and source-revalidation tests remain.
+These local/HTTP fixtures are not a live Paperclip/K3s/provider E2E claim.
+See [hook trust contract](operator-completion-hook.md) and
+[native receipt](native-codex-receipt.md) for supervisor provisioning and acceptance.
+
+Revision 3 native-path fixtures additionally cover HTTP 200 empty scoped rosters,
+fresh gateway Process proof (including hidden runtime roster), stale/foreign proof
+rejection, current-run repair handoff with zero provider subprocess calls,
+wrong/unknown repair fail-closed, normal task passthrough, idempotent handoff,
+atomic in_progress recovery parking, post-verifier lock refresh and rejection of
+untracked terminal productive continuations. These are fixtures; live E2E remains
+a supervisor deployment acceptance step.
+
+Native receipt follow-up verification also covers policy installed before submit
+(submission key + canonical spec digest + expected hashes), review-to-wake crash
+recovery without duplicate creates, a real HTTP fixture rejecting timer mutation
+without a native run header (the older AGY path, not native reserved acceptance), bounded fixed remote verifier input/output/timeouts,
+ephemeral lease revocation in finally and ordinary CLI wrapper passthrough.
+These are local/HTTP fixture results, not a live deployment claim.
+
+# 0.3.0 native receipt verification
+
+New fixture tests cover native run pinning, restart snapshots, full binding,
+cleanup/proc visibility, unsafe artifacts, fresh Codex probes, exact recovery
+contracts/403 quarantine, opt-in hash-bound synthetic review, independent runner
+pass/fail and confirmed Done reconciliation. See `native-codex-receipt.md` for
+the required live supervisor E2E recipe. No live deployment is claimed.
+
 # Test evidence
 
 ## v0.2.1 — 2026-10-24

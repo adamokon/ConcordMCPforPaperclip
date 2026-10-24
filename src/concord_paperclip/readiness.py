@@ -89,8 +89,12 @@ def evaluate(probe: dict, now: float, max_age: float = 60) -> Dict[str, Any]:
                 "quota": "unknown",
             }
 
-        # All listed keys required
-        if not REQUIRED_KEYS.issubset(probe):
+        native = probe.get("adapter_type") == "codex_local"
+        required = REQUIRED_KEYS - {"oauth_present"} if native else REQUIRED_KEYS
+        if native and probe.get("credential_available") is not True:
+            return {"eligible": False, "code": "AUTH_REQUIRED", "auth": "unknown", "quota": "unknown"}
+        # Native availability comes from a fresh trusted probe, never AGY OAuth.
+        if not required.issubset(probe):
             return {
                 "eligible": False,
                 "code": "INVALID_PROBE",
@@ -152,7 +156,7 @@ def evaluate(probe: dict, now: float, max_age: float = 60) -> Dict[str, Any]:
                 "quota": "unknown",
             }
 
-        oauth_present = probe["oauth_present"]
+        oauth_present = True if native else probe["oauth_present"]
         if not isinstance(oauth_present, bool):
             return {
                 "eligible": False,
@@ -216,7 +220,7 @@ def evaluate(probe: dict, now: float, max_age: float = 60) -> Dict[str, Any]:
             }
 
         # Precedence 3: adapter_type != process -> UNSUPPORTED_ADAPTER
-        if adapter_type != "process":
+        if adapter_type not in {"process", "codex_local"}:
             return {
                 "eligible": False,
                 "code": "UNSUPPORTED_ADAPTER",

@@ -12,7 +12,7 @@ def main():
     parser.add_argument("--config")
     parser.add_argument("command", choices=["serve", "doctor", "drain", "native", "inspect", "recover", "backup",
                                              "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client",
-                                             "receive", "probe", "gateway-context", "stdio-handoff"])
+                                             "receive", "probe", "gateway-context", "stdio-handoff", "executor-handoff", "receive-cycle"])
     parser.add_argument("--task")
     parser.add_argument("--version", type=int)
     parser.add_argument("--issue")
@@ -38,9 +38,26 @@ def main():
         if args.handoff is not None:
             raise BridgeError("HANDOFF_COMMAND_REQUIRED")
         config = load_config(args.config)
+        if config.get("native_completion") is not None or config.get("synthetic_review", {}).get("enabled") is True:
+            from .config import require_root_config
+            require_root_config(args.config)
         if args.command == "broker":
             from .broker import serve
             serve(config, args.socket, args.group_id)
+            return
+        if args.command == "executor-handoff":
+            from .config import require_root_config
+            require_root_config(args.config)
+            import os
+            from .codex_receipt import executor_handoff
+            from .paperclip import Paperclip
+            run_id = os.environ.get("PAPERCLIP_RUN_ID")
+            token = os.environ.get("PAPERCLIP_API_KEY")
+            if not run_id or not token:
+                raise BridgeError("NATIVE_CONTEXT_REQUIRED")
+            backend = Paperclip(config["base_url"], config["company_id"], token, run_id=run_id,
+                                trusted_http_hosts=config.get("trusted_http_hosts", []))
+            print(json.dumps(executor_handoff(config, backend, run_id)))
             return
         engine = make_engine(config)
         if args.command == "serve":
@@ -57,6 +74,10 @@ def main():
             result = execute(config)
         elif args.command == "drain":
             result = engine.drain()
+        elif args.command == "receive-cycle":
+            from .automation import receive
+            from .synthetic_review import approve
+            result = {"receipts": receive(engine, config), "approvals": approve(engine, config)}
         elif args.command == "receive":
             from .automation import receive
             result = receive(engine, config)
@@ -72,8 +93,13 @@ def main():
                                     (task_id,)).fetchone()
             if not attempt:
                 raise BridgeError("NO_ATTEMPT")
-            result = {"task_id": task_id, "issue_id": task["issue_id"], "state": task["state"],
-                      "created": task["created"], "profile": attempt["profile"], "run_id": attempt["run_id"],
+            with engine.store.connect() as c:
+                dispatched = c.execute("SELECT at FROM audit WHERE task_id=? AND event='attempt_dispatched' "
+                                       "AND json_extract(details,'$.attempt_id')=? ORDER BY id DESC LIMIT 1",
+                                       (task_id, attempt["id"])).fetchone()
+            result = {"company_id": config["company_id"], "project_id": config["project_id"],
+                      "attempt_id": attempt["id"], "task_id": task_id, "issue_id": task["issue_id"], "state": task["state"],
+                      "created": dispatched[0] if dispatched else task["created"], "profile": attempt["profile"], "run_id": attempt["run_id"],
                       "paths": json.loads(task["spec"])["paths"]}
         elif args.command == "recover":
             result = engine.recover()

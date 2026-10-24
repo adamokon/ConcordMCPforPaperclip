@@ -1,0 +1,44 @@
+{
+  "base_url": "https://paperclip.example.invalid",
+  "company_id": "REPLACE_WITH_NATIVE_COMPANY_UUID",
+  "project_id": "REPLACE_WITH_NATIVE_PROJECT_UUID",
+  "principal": "native-coordinator",
+  "role": "coordinator",
+  "database": "/var/lib/concord-codex/bridge.db",
+  "credential_name": "paperclip-token",
+  "profiles": [],
+  "gateway_command": [
+    "/usr/bin/ssh",
+    "-T",
+    "-oBatchMode=yes",
+    "-oIdentitiesOnly=yes",
+    "-i",
+    "{credentials}/gateway-key",
+    "native-gateway.example.invalid"
+  ],
+  "verifier_seccomp_profile": "concord-verifier.json",
+  "synthetic_review": {
+    "enabled": false,
+    "tasks": [
+      {
+        "repo": "public-synthetic",
+        "policy_id": "reviewed-stdlib-fixture-v1",
+        "sha256": {
+          "duration.py": "REPLACE_WITH_OPERATOR_REVIEWED_SHA256",
+          "test_duration.py": "REPLACE_WITH_OPERATOR_REVIEWED_SHA256"
+        },
+        "submission_key": "reviewed-synthetic-v1",
+        "spec_digest": "REPLACE_WITH_SHA256_OF_CANONICAL_SUBMISSION_SPEC"
+      }
+    ]
+  },
+  "native_agent_id": "REPLACE_WITH_PROCESS_COORDINATOR_UUID",
+  "native_completion": {
+    "contract": "operator-policy-native-accept-v1",
+    "command": [
+      "/usr/local/libexec/concord-operator-native-accept"
+    ],
+    "policy_id": "REPLACE_WITH_PROVISIONED_OPERATOR_POLICY",
+    "user_id": "REPLACE_WITH_ACTUAL_OPERATOR_BOARD_USER_ID"
+  }
+}

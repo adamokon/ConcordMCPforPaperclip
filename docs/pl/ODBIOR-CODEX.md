@@ -1,6 +1,9 @@
 # Odbiór pilota Codex przez MCP
 
 Data: 24 października 2026. Wersja wykonawcza mostu: 0.2.1.
+
+To zapis historycznego pilota z udziałem operatora. Protokół późniejszej
+automatyzacji 0.3.0 opisuje [odbiornik natywny](../native-codex-receipt.md).
 To rzeczywisty test natywnego adaptera `codex_local` w Paperclip, a nie fixture HTTP,
 sam odczyt statusu lub zadanie utworzone ręcznie z pominięciem MCP.
 Skonfigurowany model: `gpt-6.1-sol`; runtime nie udostępnia niezależnego

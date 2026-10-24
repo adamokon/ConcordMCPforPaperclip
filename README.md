@@ -6,7 +6,11 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.2.1.** Trusted verifier-policy changes can be reloaded
+**Status: experimental v0.3.0.** Native Codex receipt, fixed executor review handoff,
+conservative disposition recovery and opt-in synthetic acceptance are available.
+See [native receipt deployment and E2E recipe](docs/native-codex-receipt.md).
+
+Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.
 The original failing chat channel was recovered without restarting the app.
 See [policy reload](docs/verifier-policy-reload.md) and the guarded
@@ -18,9 +22,11 @@ and [limitations](docs/LIMITATIONS.md) before enabling execution.
 
 See the [one-page A4 brief](docs/pl/opis-dla-szefa.pdf),
 [project purpose and provenance](docs/pl/PROJEKT.md),
-[native Codex pilot](docs/pl/ODBIOR-CODEX.md) and [archive map](ARCHIVE.md).
-The Codex pilot uses operator-assisted receipt and recovery handling; it does
-not demonstrate an unattended collector for every Paperclip adapter.
+[historical Codex pilot](docs/pl/ODBIOR-CODEX.md),
+[native receipt protocol](docs/native-codex-receipt.md) and [archive map](ARCHIVE.md).
+Version 0.3.0 adds a separate native Codex receiver and formal review handoff.
+General results await coordinator review; only preapproved, exact-hash synthetic
+fixtures may be accepted by the trusted opt-in policy.
 
 ## Why this exists
 
@@ -89,7 +95,9 @@ are deliberately absent from the model-facing tools. Those are operator CLI
 operations. Worker-to-worker cooperation is mediated by the coordinator; a
 worker cannot grant itself delegation authority. An optional receive-only systemd
 timer observes existing runs after the chat ends. It never creates model work,
-rotates accounts, approves code or deploys it.
+rotates accounts or deploys code. Native Codex `receive-cycle` additionally applies
+a disabled-by-default, pre-submit exact-content acceptance policy for reviewed
+synthetic fixtures and wakes only the non-model coordinator to finalize them.
 
 Read [architecture](docs/ARCHITECTURE.md), [security](docs/SECURITY.md),
 [deployment](docs/DEPLOYMENT.md), [API contract](docs/API.md) and

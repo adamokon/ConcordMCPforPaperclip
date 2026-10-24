@@ -1,0 +1,8 @@
+[Unit]
+Description=Observe already dispatched native Codex tasks
+[Timer]
+OnBootSec=30s
+OnUnitInactiveSec=30s
+Unit=concord-codex-receiver.service
+[Install]
+WantedBy=timers.target

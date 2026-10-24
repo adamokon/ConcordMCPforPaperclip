@@ -1,0 +1,10 @@
+{
+  "base_url": "https://paperclip.example.invalid",
+  "company_id": "REPLACE_WITH_NATIVE_COMPANY_UUID",
+  "project_id": "REPLACE_WITH_NATIVE_PROJECT_UUID",
+  "executor_agent_id": "REPLACE_WITH_EXECUTOR_UUID",
+  "native_cli_command": [
+    "/usr/local/bin/codex"
+  ],
+  "handoff_root": "/var/lib/concord-codex-executor/handoff"
+}

@@ -1,0 +1,33 @@
+{
+  "base_url": "https://native-capability-proxy.example.invalid",
+  "company_id": "REPLACE_WITH_NATIVE_COMPANY_UUID",
+  "project_id": "REPLACE_WITH_NATIVE_PROJECT_UUID",
+  "native_agent_id": "REPLACE_WITH_PROCESS_COORDINATOR_UUID",
+  "profiles": {
+    "REPLACE_WITH_EXECUTOR_UUID": {
+      "adapter_type": "codex_local",
+      "artifact_base": "/var/lib/concord-codex/artifacts",
+      "executor_uid": 12345
+    }
+  },
+  "native_token_command": [
+    "/usr/local/libexec/concord-native-capability"
+  ],
+  "native_probe_command": [
+    "/usr/local/libexec/concord-native-probe"
+  ],
+  "context_command": [
+    "/usr/local/libexec/concord-native-context"
+  ],
+  "receipt_root": "/var/lib/concord-codex/receipts",
+  "lock_file": "/var/lib/concord-codex/gateway.lock",
+  "kubectl_command": [
+    "/usr/local/libexec/concord-verifier-kubectl"
+  ],
+  "test_image": "example.invalid/public-python@sha256:REPLACE_WITH_REVIEWED_IMAGE_DIGEST",
+  "node_selector": {
+    "concord-verifier": "true"
+  },
+  "test_seccomp_profile": "concord-verifier.json",
+  "resolve_native_recovery": false
+}

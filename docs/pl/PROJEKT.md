@@ -45,16 +45,27 @@ flowchart LR
     Journal -. opcjonalne metadane .-> Concord[Oryginalny Concord MCP]
 ```
 
-## Dwie ścieżki odbioru
+## Odbiór i recovery natywnego Codex
 
-Integracja Antigravity ma stałą bramę odbioru i timer obserwujący istniejące
-uruchomienia. Timer nie uruchamia nowych modeli ani nie zatwierdza kodu.
-Dla natywnego Codex wykorzystano osobny projekt, koordynatora i klucz oraz
-obsługiwany tryb odbioru przez operatora. Pliki pobiera operator z konkretnego
-zakończonego uruchomienia, a po niezależnych testach importuje zweryfikowany
-paragon do dziennika. Zlecenie, odczyt artefaktów i zatwierdzenie przechodzą
-przez rzeczywisty protokół MCP. Ten wariant nie oznacza gotowego automatycznego
-odbiornika wszystkich adapterów Paperclip.
+Wersja 0.3.0 dodaje osobny odbiornik Codex, niezależny od bramy Antigravity.
+Stały wrapper uruchamia właściwy CLI i po jego sukcesie przekazuje zadanie do
+przeglądu, zachowując przypisanie wykonawcy. Timer odbiera wyłącznie już
+zlecone prace. Sprawdza rzeczywisty run, brak procesów i blokad, kopiuje tylko
+wskazane pliki i uruchamia niezależne testy ich niezmiennej kopii.
+
+Odbiornik przypina pierwszy run i snapshot w trwałym dzienniku. Po restarcie
+odczytuje ten sam wynik. Dodatkowy run wolno uznać za naprawę tylko wtedy,
+gdy Paperclip potwierdza konkretną dyspozycję recovery, jej źródło i właściciela.
+Wrapper naprawy nie uruchamia ponownie modelu: odtwarza formalne przekazanie do
+przeglądu. Nieznana naprawa, nowe wykonanie kodu, odmowa uprawnień lub niepewny
+zapis zatrzymują dany obieg do uzgodnienia zamiast powielać pracę.
+
+Nowy kod nie zatwierdza dowolnego wyniku na podstawie deklaracji agenta.
+Zwykły wynik oczekuje na przegląd koordynatora przez MCP. Dla powtarzalnych
+prób syntetycznych można przed zleceniem włączyć zaufaną politykę obejmującą
+klucz zlecenia, skrót jego specyfikacji i skróty wszystkich oczekiwanych plików.
+Warunkiem automatycznej akceptacji pozostają niezależne testy i zgodny manifest.
+Polityka jest domyślnie wyłączona i nie jest dostępna z narzędzi modelu.
 
 Weryfikator używa osobnego poda K3s, przypiętego obrazu, użytkownika bez roota,
 systemu plików tylko do odczytu, ograniczeń zasobów i czasu, braku tokenu ServiceAccount,
@@ -82,19 +93,20 @@ zastępuje Paperclip. Kod upstream nie jest dołączony do naszej paczki.
 Rozwój obejmował trwałą kolejkę i ograniczenia delegacji, rzeczywistą integrację
 Concord, natywne uruchomienia i odbiór Antigravity, izolowany weryfikator,
 a następnie poprawkę odświeżania polityki weryfikatora i kontrolowany handoff
-już zainicjalizowanej sesji stdio. Ostatni etap sprawdza osobną ścieżkę Codex.
+już zainicjalizowanej sesji stdio. Etap 0.3.0 dodaje automatyczny odbiór Codex,
+kontrolowane recovery i ograniczoną akceptację prób syntetycznych.
 
 ## Stan i granice zastosowania
 
-Wersja kodu wykonawczego to 0.2.1. Kontrola dostępu, niepewne zapisy,
+Wersja kodu wykonawczego to 0.3.0. Kontrola dostępu, niepewne zapisy,
 ponowienia, zakresy plików i kontynuacje mają testy automatyczne. Po utracie
 odpowiedzi na nieidempotentne utworzenie zadania system zatrzymuje niepewną
 operację do uzgodnienia; nie uruchamia drugiego wykonawcy w ciemno.
 
 Rozsądny następny etap to powtarzalny pilot na publicznych lub syntetycznych
 zadaniach oraz pomiar czasu, kosztu i częstości poprawek. Przed rozszerzeniem
-użycia warto dopracować automatyczny odbiornik natywnego Codex, politykę retencji
-i procedurę odtwarzania dziennika. Nie ma podstaw, by na tym etapie deklarować
+użycia warto dopracować politykę retencji, procedurę odtwarzania dziennika
+i obsługę kolejnych rodzajów zadań. Nie ma podstaw, by na tym etapie deklarować
 pełną autonomię produkcyjną, przetwarzanie danych poufnych lub automatyczne wdrażanie.
 
 Szczegóły kontraktu: [API](../API.md), [bezpieczeństwo](../SECURITY.md),

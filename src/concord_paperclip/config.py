@@ -111,3 +111,12 @@ def make_engine(config):
                   Principal(config["principal"], config.get("role", "coordinator"), tuple(config.get("task_ids", []))),
                   profiles=config.get("profiles", []), max_depth=config.get("max_depth", 1),
                   max_children=config.get("max_children", 2))
+
+
+def require_root_config(path):
+    """Privileged native helpers accept only operator-controlled config paths."""
+    origin = Path(path).absolute()
+    for component in [origin, *origin.parents]:
+        mode = component.lstat()
+        if mode.st_uid != 0 or mode.st_mode & 0o022 or stat.S_ISLNK(mode.st_mode):
+            raise BridgeError("ROOT_OWNED_CONFIG_REQUIRED")

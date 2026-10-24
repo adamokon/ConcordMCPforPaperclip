@@ -1,7 +1,9 @@
 """Run as the Process adapter of the dedicated non-model coordinator agent.
 
 The platform supplies its real run id. Persistent task_bridge credentials keep
-project/assignee limits; the short-lived broad worker JWT is deliberately unused.
+project/assignee limits. The native JWT authenticates the Process and reads only
+bound run telemetry; it never authorizes a mutation. Native completion uses an
+explicit operator-policy capability, never an invented native reviewer identity.
 """
 
 import os
@@ -18,13 +20,17 @@ def execute(config, run_id=None, runtime_token=None):
         raise BridgeError("NATIVE_CONTEXT_REQUIRED")
     engine = make_engine(config)
     engine.backend.run_id = run_id
-    # Use the platform-minted JWT only to authenticate this exact native run.
+    # Authenticate this exact native run and read bound telemetry with its JWT.
     # All writes use the narrower persistent task_bridge key and real run header.
     runtime = Paperclip(config["base_url"], config["company_id"], runtime_token, run_id=run_id,
                         trusted_http_hosts=config.get("trusted_http_hosts", []))
     run = runtime.run(run_id)
     if run.get("agentId") != config["native_agent_id"] or run.get("status") != "running":
         raise BridgeError("NATIVE_RUN_MISMATCH")
+    if run.get("companyId") != config["company_id"] or run.get("id") != run_id:
+        raise BridgeError("NATIVE_RUN_MISMATCH")
+    from .wake import require_coordinator
+    require_coordinator(runtime, config)
     context = run.get("contextSnapshot") or {}
     task_id = context.get("issueId") or context.get("taskId")
     if not task_id:
@@ -52,6 +58,10 @@ def execute(config, run_id=None, runtime_token=None):
             result["dispatches"].append({key: dispatched[key] for key in ("id", "issue_id", "state")})
         except BridgeError as e:
             result["dispatches"].append({"id": task["id"], "code": e.code})
+    # Selection is explicit, before any accept attempt; never an HTTP-error fallback.
+    engine.native_completion_config = config
+    engine.native_coordinator_id = config["native_agent_id"]
+    engine.native_read_backend = runtime
     engine.close_reviews()
     # This is the real current run operating on its own control issue.
     engine.backend.patch(own_issue["id"], {"status": "done"})
