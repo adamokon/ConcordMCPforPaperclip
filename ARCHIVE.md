@@ -12,6 +12,7 @@ Nie należy tworzyć drugiego roboczego egzemplarza z rozbieżnymi plikami.
 | `docs/pl/PROJEKT.md` | Cel, działanie, pochodzenie i granice projektu |
 | `docs/pl/ODBIOR-CODEX.md` | Historyczny pilot 0.2.1 z udziałem operatora |
 | `docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md` | Pełne próby 0.3.0, recovery, odrzucenie i restart |
+| `docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md` | Nowa poprawka produkcyjna0.3.1, odbiór i przegląd przez MCP |
 | `docs/` | Techniczny kontrakt API, architektura, bezpieczeństwo, wdrożenie i ograniczenia |
 | `examples/codex-e2e/` | Publiczne pliki historycznego pilota |
 | `examples/codex-unattended/` | Dokładne pliki końcowej próby i cztery powtarzalne testy |

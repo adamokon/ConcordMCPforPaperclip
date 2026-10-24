@@ -1,5 +1,17 @@
 # Test evidence
 
+## 0.3.1 real-code acceptance on 2026-10-24
+
+A new native-readiness production fix and 15 original unittest methods passed
+the complete MCP submission, Paperclip execution, automatic receipt, isolated
+K3s verification, independent supervisor tests/review and exact-manifest MCP
+approval path. Confirmed Done/complete9 with zero claims; no synthetic rule,
+manual import, policy change or status bypass. Linux391PASS; macOS390PASS plus
+one Linux-only skip; Ruff/build PASS. The delivered tests fail on the old source
+(87 failing subtests) and pass on the new source. Separate supervisor checks cover
+1957 native variants and 1296 unchanged Process variants. See the
+[real-code report](pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md).
+
 ## 0.3.0 live acceptance on 2026-10-24
 
 Supervisor: Linux **376 passed**, macOS **375 passed + 1 Linux-only skip**;

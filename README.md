@@ -6,12 +6,15 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.3.0.** Native Codex receipt, fixed executor review handoff,
+**Status: experimental v0.3.1.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
 Live normal/recovery trials reached Done unattended; a failing-test trial was
 rejected. Completion uses a separately provisioned, exact-manifest owner-policy
 capability. See the [live report](docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md).
 See [native receipt deployment and E2E recipe](docs/native-codex-receipt.md).
+A genuinely new production readiness fix was also received, independently tested,
+reviewed through MCP and finalized without operator intervention; see the
+[0.3.1 real-code acceptance](docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md).
 
 Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.
