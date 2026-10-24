@@ -6,7 +6,7 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.3.1.** Native Codex receipt, fixed executor review handoff,
+**Status: experimental v0.3.2.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
 Live normal/recovery trials reached Done unattended; a failing-test trial was
 rejected. Completion uses a separately provisioned, exact-manifest owner-policy
@@ -16,9 +16,13 @@ A genuinely new production readiness fix was also received, independently tested
 reviewed through MCP and finalized without operator intervention; see the
 [0.3.1 real-code acceptance](docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md).
 The [Codex–Antigravity cooperation trial](docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md)
-verified Codex receipt and a real Concord question delivered to a coordinator
-proxy. Infrastructure connectivity failed during Antigravity execution;
-bidirectional cooperation and final acceptance remain unverified.
+was resumed in its existing tasks after an infrastructure outage. Two real peer
+questions/answers influenced the implementation and integration tests; all four
+batches reached native Done and bridge complete after independent review.
+The [public example](examples/cross-harness-cooperation/) passes 51 tests.
+Version 0.3.2 corrects receipt of an explicitly bound Process retry; site telemetry
+must support the corresponding optional run ID. Cooperation remains mediated
+by an active supervisor, with privileged, audited recovery when required.
 
 Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.

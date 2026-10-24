@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-24",
+  "bridge_source_version": "0.3.2",
+  "original_concord": {
+    "version": "0.16.0",
+    "commit": "f00d7c812ff708979b1784c48b0201096bc8bad5",
+    "transport": "actual MCP; explicit supervisor proxies"
+  },
+  "runtime_versions": {
+    "codex": "0.3.1",
+    "process": "0.2.1 with narrow gateway/telemetry and separate adapter backports"
+  },
+  "stages": {
+    "codex-plan": {
+      "manifest_sha256": "7104ce6c5a23c9e4a465b0f69ab7074a418618f8858a18ea664d2518fdffd9b7",
+      "bridge_state": "complete",
+      "bridge_version": 10,
+      "native_state": "done"
+    },
+    "agy-contract": {
+      "manifest_sha256": "6067b9769e6d38487bff7131186959b0b34b61d5c473096a99d6651580fc8f85",
+      "bridge_state": "complete",
+      "bridge_version": 14,
+      "native_state": "done"
+    },
+    "codex-final": {
+      "manifest_sha256": "aa2f8075c2c9ed5cf538981a9c55673a55d7e9b57089787b36281654538a865c",
+      "bridge_state": "complete",
+      "bridge_version": 9,
+      "native_state": "done"
+    },
+    "agy-tests": {
+      "manifest_sha256": "69b61a7b9bc1c2b71aaf56ec4eb0a6b2538ceff2f8fd0a5e0a39238397698048",
+      "bridge_state": "complete",
+      "bridge_version": 13,
+      "native_state": "done"
+    }
+  },
+  "files": {
+    "intervals.py": {
+      "sha256": "90d71fe8901997b68b5b5b8b0e08efee824d93285d3012ce6d3d431767a352b0",
+      "received_from": "codex-final"
+    },
+    "reply.py": {
+      "sha256": "fba224196641f946450ec9e2b5b8247072d7659d06c18fe3b5431361c10f6d74",
+      "received_from": "codex-final"
+    },
+    "test_intervals.py": {
+      "sha256": "5ff4a5a71213941e116c5882548e0d452b55545ecfb792776528680511ab8659",
+      "received_from": "codex-final"
+    },
+    "contract.py": {
+      "sha256": "cf7bb69013a23a5663d911093794b0443e9c6cdf1fbb9de236752d80f4680120",
+      "received_from": "agy-contract"
+    },
+    "test_contract.py": {
+      "sha256": "514abf7ffb568541c4b1c3fcef4ff92293e70407a372dec51595aee03e6c2671",
+      "received_from": "agy-tests"
+    },
+    "test_supervisor.py": {
+      "sha256": "2d7041f2bd5a474957687e37285751912e46ae0b54b9b6e7349a129cbb89a432",
+      "received_from": "independent supervisor"
+    }
+  },
+  "tests": {
+    "combined": 51,
+    "codex_final": 17,
+    "antigravity_final": 32,
+    "supervisor_methods": 2,
+    "supervisor_exhaustive_inputs": 3616,
+    "antigravity_exhaustive_inputs": 462,
+    "antigravity_seeded_inputs": 100,
+    "codex_exhaustive_inputs": 1111
+  },
+  "review": {
+    "human_confirmation_required_during_continuation": false,
+    "method": "independent AI supervisor exact-manifest review; native owner authority and MCP attestations",
+    "synthetic_autoapproval_rule": false,
+    "all_four_native_cards": "accepted",
+    "claims_per_task": 0
+  },
+  "limitations": [
+    "Supervised batches, not direct live model sessions.",
+    "Privileged supervised recovery, not a general retry daemon.",
+    "Unrelated worker services not accepted by this trial."
+  ]
+}

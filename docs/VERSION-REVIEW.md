@@ -4,10 +4,16 @@ Checked official release and public advisory endpoints before the final 0.3.0
 installation. Rechecked the same official release/advisory and signature metadata
 at 19:18 UTC before the 0.3.1 build; dependencies and platform versions remain
 unchanged. This is a scoped compatibility decision, not a security certification.
+Rechecked all listed official release/advisory and tag-verification endpoints at
+20:39 UTC before the 0.3.2 build; the observations below remain unchanged.
+Version 0.3.2 adds trusted run binding for Process receipt after a reconciled
+retry. The live cooperation trial used Codex runtime 0.3.1 and the separate
+legacy Process runtime 0.2.1 with a narrow gateway/telemetry backport. Building
+0.3.2 does not mean both installed services were upgraded to that version.
 
 | Component | Selected reference | Live release observation and reason |
 |---|---|---|
-| This bridge | 0.3.1; reviewed changes based on `9e798c337ecc516cf386822c41ddda9486a3ad5e` | Real native-readiness diagnostic fix after autonomous receipt/review. Final Git commit and package SHA256 are recorded in each local release manifest. |
+| This bridge | 0.3.2; reviewed changes based on `77d57429d0bd9bc347f260c7f7b2a45b714dba68` | Bound-run Process receipt correction exercised by the resumed cooperation trial, plus public example and tests. Final Git commit and package SHA256 are recorded in each local release manifest. |
 | Python MCP SDK | 1.30.0, tag commit `8c2fa6eabacde869d75568e33b9d466b58c2f512` | Official latest is 2.3.0. Retain the tested 1.x API; 1.30.0 is the published 1.x fix for schema-reference fetching, OAuth discovery, redirects and HTTP session issues. No major dependency migration in this change. |
 | Optional upstream Concord | 0.16.0, `f00d7c812ff708979b1784c48b0201096bc8bad5` | Matches official latest and the actual upstream MCP integration previously tested. Its advisory list was empty at check time; absence is not proof of safety. Not bundled in the bridge. |
 | Paperclip integration target | Existing 2026.1005.0 deployment | Official latest is 2026.1023.0. Preserve the installed environment and authentication integration while testing its actual API. A platform upgrade needs its own compatibility and security review. |

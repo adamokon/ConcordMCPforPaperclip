@@ -104,7 +104,8 @@ bez powielania zatwierdzeń. Naprawa dyspozycji nie uruchomiła ponownie modelu.
 Akceptację końcową wykonuje jawnie skonfigurowana, ograniczona brama właściciela;
 nie udaje ona natywnego agenta recenzenta.
 
-Wersja kodu wykonawczego to 0.3.0. Kontrola dostępu, niepewne zapisy,
+Wersja publicznego kodu to 0.3.2; próba współpracy używała runtime Codex 0.3.1
+i oddzielnego Process 0.2.1 z wąskimi poprawkami odbioru. Kontrola dostępu, niepewne zapisy,
 ponowienia, zakresy plików i kontynuacje mają testy automatyczne. Po utracie
 odpowiedzi na nieidempotentne utworzenie zadania system zatrzymuje niepewną
 operację do uzgodnienia; nie uruchamia drugiego wykonawcy w ciemno.
@@ -117,3 +118,15 @@ pełną autonomię produkcyjną, przetwarzanie danych poufnych lub automatyczne 
 
 Szczegóły kontraktu: [API](../API.md), [bezpieczeństwo](../SECURITY.md),
 [ograniczenia](../LIMITATIONS.md), [testy](../TESTING.md).
+
+
+## Współpraca dwóch wykonawców
+
+[Pełny odbiór Codex–Antigravity](WSPOLPRACA-CODEX-ANTIGRAVITY.md) potwierdza
+dwa rzeczywiste pytania i odpowiedzi, wspólną implementację i testy: cztery
+partie Done/complete, 51 testów i zero claims. Oryginalny Concord przechowuje
+wiadomości pomiędzy jawnymi proxy nadzorcy; Paperclip wykonuje powiązane partie.
+Po awarii zachowano istniejące zadania i historię, uzgodniono stan przez native
+recovery i naprawiono wybór przebiegu oraz zbyt mały limit odpowiedzi HTTP
+w adapterze. To nadzorowana współpraca bez ręcznych odpowiedzi i kliknięć,
+a nie dowód ogólnego, samoczynnego odtwarzania infrastruktury.

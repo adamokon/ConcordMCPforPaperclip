@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "concord-mcp-for-paperclip"
-version = "0.3.1"
+version = "0.3.2"
 description = "Durable Paperclip task coordination and an optional real Concord MCP projection"
 requires-python = ">=3.11"
 license = "MIT"

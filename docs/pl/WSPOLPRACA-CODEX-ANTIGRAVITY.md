@@ -1,96 +1,162 @@
-# Próba współpracy Codex i Antigravity przez Concord
+# Współpraca Codex i Antigravity przez Concord — pełny odbiór
 
-Stan: **24 października 2026, próba nieukończona**. To raport z częściowego
-eksperymentu, nie odbiór współpracy dwóch wykonawców. Wersja mostu pozostaje 0.3.1.
+Stan: **24 października 2026**. Wznowiono istniejące zadanie Antigravity po
+przerwie infrastruktury i dokończono obieg: rzeczywiste pytania i odpowiedzi,
+pliki obu autorów, niezależne testy, przegląd oraz zatwierdzenie. Cztery partie
+mają natywne `Done`, stan mostu `complete`, zaakceptowane karty wyników i zero
+rezerwacji plików. Nie utworzono duplikatu przerwanego zadania.
 
-## Cel i rzeczywisty podział pracy
+Kod mostu **0.3.2** zawiera poprawkę odbioru po powiązanym retry. Próba używała
+runtime Codex 0.3.1 i oddzielnego runtime Process 0.2.1 z wąskim backportem
+bramy/telemetrii. Zbudowanie nowej paczki nie oznacza aktualizacji obu usług.
 
-Małym wspólnym zadaniem był moduł normalizujący całkowite przedziały półotwarte.
-Codex miał przygotować walidację i zapytać Antigravity o nieustalone reguły
-łączenia przedziałów stykających się i pustych. Antigravity miał zaproponować
-kontrakt z przykładami oraz zadać własne pytanie o interfejs. Kolejna partia Codex
-miała wykorzystać faktyczną odpowiedź, zaimplementować łączenie i odpowiedzieć
-partnerowi. Ostatnia partia Antigravity miała dostarczyć testy integracyjne.
+## Co wykonawcy zrobili wspólnie
 
-Przewidziano cztery ograniczone partie, dwa zadania nadrzędne i dwie kontynuacje.
-Pliki miały być odbierane przez istniejące timery, a zatwierdzenie przez MCP
-nastąpić dopiero po niezależnych testach i przeglądzie dokładnych manifestów.
-Nie przygotowano z góry odpowiedzi partnera ani gotowej implementacji.
+Zadaniem był nowy, mały moduł normalizacji całkowitych przedziałów półotwartych.
+Koordynator nie dostarczył gotowego rozwiązania ani odpowiedzi partnerów.
 
-## Co potwierdzono
+| Partia Paperclip | Rzeczywisty wkład | Odbiór |
+|---|---|---|
+| Codex, `BLU-59` | Walidator przedziału, 7 testów i własne pytanie o puste/stykające się przedziały | `Done / complete10` |
+| Antigravity Adam, istniejące `OKO-66` | Kontrakt, odpowiedź z 22 przykładami, 28 testów kontraktu/walidatora i pytanie zwrotne | `Done / complete14` |
+| Codex, powiązana kontynuacja `BLU-61` | Implementacja łączenia według faktycznego kontraktu, odpowiedź o interfejsie i 17 testów | `Done / complete9` |
+| Antigravity Adam, powiązana kontynuacja `OKO-70` | 32 nowe testy integracyjne i adversarial przeciwko rzeczywistej implementacji | `Done / complete13` |
 
-| Etap | Zaobserwowany wynik |
-|---|---|
-| Codex w Paperclip | Rzeczywista partia zakończyła wykonanie; wynik przeszedł do `review_ready` |
-| Odbiór Codex | Odebrano cztery dozwolone pliki, sprawdzono manifest i sumy plików |
-| Kod | `validate_interval` z walidacją typów, długości, kolejności i nieujemności; bez implementacji łączenia |
-| Testy | Niezależny sandbox zaakceptował partię; lokalnie wszystkie 7 testów `unittest` przeszło |
-| Pytanie | Codex sam zapytał o reguły stykających się i pustych przedziałów, podając konkretne przykłady |
-| Oryginalny Concord | Pytanie zapisano przez prawdziwe MCP `update_work`; proxy partnera odebrało je przez `inspect_work` |
-| Idempotencja | Powtórzenie tego samego zapisu z tym samym kluczem zwróciło ten sam identyfikator i `idempotent_replay: true` |
-| Antigravity | Zlecenie zawierało odebrane pytanie i pliki Codex; zaobserwowano działający pod wykonawcy |
-| Odpowiedź, dalsze pliki, wspólne testy i końcowa akceptacja | Niepotwierdzone — utrata dostępu do infrastruktury |
+Dwie kontynuacje są celowo mniejszymi zadaniami podrzędnymi. Powtórzenia po
+udowodnionych awariach zachowały te same istniejące zadania i historię prób.
+Nie były to ponownie utworzone kopie przerwanej pracy.
 
-Digest odebranego manifestu Codex:
-`7104ce6c5a23c9e4a465b0f69ab7074a418618f8858a18ea664d2518fdffd9b7`.
-Własne dowody, numery zadań i instrukcja wznowienia pozostają w lokalnym,
-wyłączonym z Git katalogu dowodowym. Nie publikujemy inwentarza ani surowych logów.
+Codex zapytał, czy stykanie oznacza łączenie i co zrobić z pustymi przedziałami.
+Antigravity wybrał **łączenie stykających się, odrzucanie pustych oraz uporządkowaną
+listę krotek**, uzasadniając to semantyką sumy zbiorów. Następnie zapytał o typ
+zewnętrznej kolekcji. Codex wybrał **listę lub krotkę, wraz z podklasami**;
+pozostałe typy, także pusty generator czy zbiór, zgłaszają `TypeError`.
+Implementacja i testy partnera faktycznie wykorzystują te odpowiedzi.
 
-Konfiguracja i telemetria wykonawcy Codex wskazywały `gpt-6.1-sol`.
-Pod Antigravity używał obrazu wykonawcy 1.4.3, a jego log wskazywał
-`gemini-3.8-flash-high`. To dowody konfiguracji/wykonawcy, a nie niezależna
-atestacja dostawcy modelu. Przed zleceniem uzgodniono historyczny stan błędu
-profilu z bieżącą gotowością i pustym środowiskiem; wykonano audytowane
-wyczyszczenie historycznego błędu przez natywną usługę Paperclip. Nie tworzono
-nowych poświadczeń ani nie poszerzano uprawnień.
+Publiczne, odebrane źródła i zapis rozmowy są w
+[`examples/cross-harness-cooperation`](../../examples/cross-harness-cooperation/).
+`intervals.py`, `reply.py` i `test_intervals.py` napisał Codex; `contract.py`
+i końcowy `test_contract.py` — Antigravity. Trzy pliki przekazane do końcowej
+partii Antigravity zachowano **bajt w bajt**. Nadzorca dodał niezależny
+`test_supervisor.py`. Pliki wykonawców nie zostały po cichu poprawione przez nadzorcę.
 
-## Co dokładnie oznacza „przez Concord”
+## Co oznacza „przez Concord”
 
-Uruchomiono oryginalny Concord 0.16.0, commit
+Użyto oryginalnego Concord **0.16.0**, commit
 `f00d7c812ff708979b1784c48b0201096bc8bad5`, przez oficjalny protokół MCP.
-Zapisano dwa rzeczywiste konteksty pracy i rzeczywistą wiadomość z potwierdzeniem
-odczytu. Przed budową sprawdzono oficjalne wydania, dostępne informacje
-o bezpieczeństwie i zgodność środowiska; instalacja użyła zamrożonego lockfile,
-a budowa TypeScript przeszła. Nie jest to deklaracja braku podatności.
+Dwa konteksty pracy, dwa pytania, dwie odpowiedzi i końcowe dowody odbioru zapisano
+w rzeczywistym Concord. Oba konteksty zamknięto przez `finish_work` po odbiorze
+Paperclip, z pochodzeniem oceny `reported_outcome`.
 
-Tożsamości `paperclip-codex-proxy` i `paperclip-antigravity-proxy` były jawnymi
-proxy koordynatora. Potwierdzenie `read` dotyczy odbioru przez proxy, **nie dowodzi
-przeczytania przez model Antigravity**. Treść odebranej wiadomości przekazano do
-faktycznej partii Paperclip, ale jej odpowiedzi jeszcze nie odebrano.
-Concord użył kontekstu głównego repozytorium; lokalny dziennik jest ignorowany
-przez Git. Przekazano tylko jawnie przygotowane niesekretne dane eksperymentu.
+Tożsamości `paperclip-codex-proxy` i `paperclip-antigravity-proxy` są jawnymi
+proxy koordynatora, nie tożsamościami sesji modeli. Koordynator odbierał
+wiadomości przez `inspect_work` i przekazywał dokładną odebraną treść do
+kolejnych partii Paperclip. Oryginalne pytania i odpowiedzi powiązano również
+przez `reply_to` w dzienniku mostu. Powtórzenie zapisu pytania z tym samym
+kluczem zwróciło ten sam UUID i `idempotent_replay: true`.
 
-Jest to współpraca partiami pośredniczona przez koordynatora, nie bezpośrednie
-połączenie dwóch żywych sesji modeli. Paperclip nadal odpowiada za wykonanie,
-most za odbiór i kontrolę wyników, a Concord za trwały kontekst i wiadomości.
-Nie wdrożono nowego samodzielnego demona współpracy.
+Potwierdzenie `read` dowodzi odbioru przez proxy. Dopiero zależna implementacja
+Codex i testy Antigravity potwierdzają wykorzystanie odpowiedzi przez wykonawców.
+**Jest to rzeczywista współpraca partiami z nadzorcą, nie bezpośredni żywy kanał
+między modelami.** Paperclip pozostaje autorytetem wykonania, most kontroluje
+odbiór i akceptację, a Concord utrzymuje kontekst i wiadomości.
 
-## Przerwanie i bezpieczne wznowienie
+Konfiguracja i telemetria Codex wskazywały `gpt-6.1-sol`; logi własnych przebiegów
+Antigravity potwierdziły `gemini-3.8-flash-high`, obraz wykonawcy 1.4.3.
+Nie jest to niezależna atestacja dostawców modeli. Kosztów nie ustalono.
 
-Około 19:47 UTC utracono dostęp do hosta wykonawczego i Paperclip.
-SSH nie dochodziło do bannera, API przekraczało timeout, a transport NetBird
-pokazywał `Connecting`. Próba z drugiego autoryzowanego serwera również zawiodła;
-nie był to wyłącznie problem klienta MCP. Przyczyna awarii nie została ustalona.
+## Testy i przegląd
 
-Nie powtórzono zlecenia, nie zmieniono profilu modelu, nie zwolniono roszczeń
-do plików i nie zatwierdzono nieodebranego wyniku. Brak łączności nie dowodzi
-zakończenia ani niepowodzenia partii. Nie restartowano hosta w ramach tej próby.
+Wszystkie odebrane manifesty zweryfikowano ponownie: ścieżki, rozmiary i SHA256.
+Przebiegi końcowe zakończyły się sukcesem, bez nierozstrzygniętych `denied_actions`.
+Odbiornik wykonał testy w osobnym środowisku bez poświadczeń, z `deny-all`
+i przypiętą polityką seccomp. Nadzorca przeczytał kod oraz testy i uruchomił je lokalnie.
 
-Po przywróceniu infrastruktury należy najpierw odczytać **istniejący** przebieg
-Antigravity, stan terminalny i cleanup. Następnie odebrać jego manifest, sprawdzić
-pliki i przekazać rzeczywistą odpowiedź przez wątek Concord. Dopiero wtedy można
-zlecić powiązane kontynuacje, wykonać wspólne testy i zatwierdzić wyniki.
-Nie wolno traktować samego statusu ani odczytu przez proxy jako odbioru zadania.
+- **51 testów wspólnego przykładu PASS:** 17 Codex, 32 Antigravity, 2 nadzorcy.
+- Niezależny test nadzorcy porównał **3616** uporządkowanych wejść z modelem
+  zbioru punktów; sprawdził też idempotencję, brak mutacji i ogromne współrzędne.
+- Antigravity sprawdził 462 małe kombinacje i 100 scenariuszy ze stałym ziarnem;
+  Codex dodatkowo 1111 małych kombinacji. Zakresy częściowo się pokrywają.
+- Testy mostu po poprawce: **394 PASS, 1 test Linuksa pominięty na macOS**;
+  lint PASS. Cztery nowe regresje chronią powiązanie przebiegu.
+- Cztery testy poprawki lokalnego adaptera HTTP PASS, w tym odpowiedź większa
+  niż dawny limit, dokładna nowa granica i jawne odrzucenie przekroczenia.
 
-## Ocena
+Przegląd nie wykazał błędu w uzgodnionej implementacji. Testy nie wykonują sieci,
+nie używają poświadczeń i mają powtarzalne dane. Publiczny przykład jest
+uruchamiany przez CI na Pythonie 3.11 i 3.13. Wynik CI konkretnego commita należy
+odczytać w jego [Actions](https://github.com/adamokon/ConcordMCPforPaperclip/actions).
 
-Eksperyment potwierdził użyteczny pierwszy odcinek: autentyczne pytanie wykonawcy,
-automatyczny odbiór jego częściowej pracy oraz trwały, idempotentny transport
-pytania przez oryginalny Concord do kolejnej partii Paperclip. **Nie potwierdził
-jeszcze współpracy w obie strony ani pełnego obiegu bez operatora.**
+Digests rzeczywistych odebranych manifestów:
 
-W obecnym stanie rozsądne jest zachowanie tego modelu jako eksperymentalnego.
-Warunkiem odbioru pozostaje rzeczywista odpowiedź partnera, wykorzystanie jej
-w kodzie, pytanie zwrotne, odebrane pliki obu stron, wspólne testy oraz końcowa
-akceptacja. Awaria wskazuje też na wspólną zależność od hosta: dziennik lokalny
-zachowuje kontekst, ale sam nie przywróci wykonawców ani dostępu do Paperclip.
+| Partia | SHA256 manifestu |
+|---|---|
+| Codex — walidator/pytanie | `7104ce6c5a23c9e4a465b0f69ab7074a418618f8858a18ea664d2518fdffd9b7` |
+| Antigravity — kontrakt | `6067b9769e6d38487bff7131186959b0b34b61d5c473096a99d6651580fc8f85` |
+| Codex — implementacja | `aa2f8075c2c9ed5cf538981a9c55673a55d7e9b57089787b36281654538a865c` |
+| Antigravity — testy końcowe | `69b61a7b9bc1c2b71aaf56ec4eb0a6b2538ceff2f8fd0a5e0a39238397698048` |
+
+## Rzeczywiste recovery i znalezione poprawki
+
+Pierwsza próba Antigravity urwała się podczas niedostępności infrastruktury
+około 19:47 UTC. Po odzyskaniu dostępu sprawdzono **ten sam** przebieg:
+Paperclip zapisał anulowanie, worker timeout i brak wyników. Usunięto wyłącznie
+jego zakończony Job, potwierdzono brak podów i zachowano historię.
+
+Natywna ochrona `execution_reconciliation_required` wymagała dowodów zatrzymania
+wykonawcy i braku wykonanych działań. Przekazano rzeczywiste dowody przez
+wspierane API recovery. Dopiero potem wznowiono istniejące zadanie. Starszy most
+nie ma ogólnego narzędzia retry tego samego profilu: nadzorca wykonał ograniczoną,
+audytowaną transakcję dziennika, z kopią zapasową i zachowaniem starej próby,
+aby dopisać nową i związać ją z faktycznym UUID natywnym. To nie jest funkcja
+samoczynnego odzyskiwania wdrożona nowym demonem.
+
+Eksperyment ujawnił dwie konkretne luki integracji:
+
+1. **Odbiór po retry:** telemetria odrzucała kilka przebiegów tego samego zadania
+   jako `AMBIGUOUS_RUN`, mimo że dziennik znał właściwy UUID. Brama przekazuje
+   teraz opcjonalny, już związany `run_id`; telemetria stosuje go dodatkowo do
+   dotychczasowych filtrów firmy, projektu, zadania, agenta i czasu. Odczyt bez
+   powiązania nadal odrzuca niejednoznaczność; brama ponownie sprawdza UUID.
+   Test na żywo potwierdził właściwy sukces, dawny anulowany przebieg, brak
+   nieistniejącego UUID i zachowanie odmowy bez powiązania.
+2. **Ucięty JSON przed modelem:** oddzielny adapter Process próbował parsować
+   odpowiedź API uciętą do 64 KiB. Końcowa partia nie uruchomiła wtedy workera.
+   Poprawka używa ograniczonego odczytu do 2 MiB plus bajt i odrzuca przekroczenie
+   przed parsowaniem; limit treści błędów pozostaje 64 KiB. Zachowano tryb
+   wykonywalny, uwierzytelnianie, blokadę przekierowań i limit promptu 16000 znaków.
+   Wznowienie przez native recovery uruchomiło poprawnie tę samą końcową partię.
+
+Było też dodatkowe automatyczne wybudzenie recovery, które zakończyło się na
+odczycie API przed workerem. Zachowano jego niepowodzenie i potwierdzono brak
+workspace; nie uznano go za kolejne wykonanie modelu. Współdzielony profil
+czekał na zakończenie innej pracy; nie przerwano jej ani nie zmieniono konta.
+Zwykłe stany błędu uzgadniano audytowanym `clearError`, po sprawdzeniu braku
+aktywnego wykonania, cleanup i zakresu. Nie zmieniano OAuth ani uprawnień.
+
+## Zatwierdzenie i granice wyniku
+
+Nadzorca AI dokonał przeglądu dokładnych manifestów. Codex zamknięto przez MCP
+z wcześniej skonfigurowaną bramą akceptacji właściciela. Zwykłe karty Antigravity
+zaakceptowano przez natywne API właściciela po kontroli manifestu, niezależnych
+testów, źródłowego przebiegu i zależności, następnie zapisano review przez MCP.
+Krótkie poświadczenia właściciela odwołano w `finally`; nie dodano trwałych kluczy.
+Audyt wskazuje uprawnienie właściciela użyte przez nadzorcę AI, nie fikcyjnego
+natywnego recenzenta Process. Nie zastosowano syntetycznej reguły autoakceptacji.
+
+Końcowy odczyt potwierdził cztery zaakceptowane karty, brak oczekujących kart,
+natywne `Done`, brak blokad wykonania, `complete` w obu dziennikach i **0 claims**
+każdej partii. Sprawdzono usunięcie środowisk własnych prób Antigravity.
+Nie była potrzebna ludzka odpowiedź projektowa, ręczne pobieranie plików ani
+kliknięcie akceptacji podczas nadzorowanego wznowienia.
+
+**Ocena: kierunek jest użyteczny do małych, jawnych zadań partiami.** Udało się
+przekazać decyzje między różnymi wykonawcami i sprawdzić, że wpłynęły na kod
+oraz testy. Nadal potrzebny jest aktywny nadzorca AI i poprawnie uprawnione
+narzędzia. Nie wykazano pełnej autonomii produkcyjnej, odtwarzania całego hosta,
+obsługi danych poufnych ani gotowości wszystkich pozostałych usług workera.
+
+Prywatne dowody, pomocniczy kod adaptera, inwentarz i procedury operatora pozostają
+poza GitHub. Publikacja obejmuje wyłącznie sprawdzone publiczne źródła, rozmowę
+projektową i zredagowany opis. Pełne lokalne archiwum publicznego Git jest
+oddzielone od prywatnych materiałów wdrożeniowych.

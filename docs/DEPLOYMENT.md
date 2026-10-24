@@ -97,6 +97,33 @@ execution, collect exact output files, inspect code, run independent tests,
 record terminal cleanup evidence and review the exact manifest. Confirm the
 remote status by reading it back. Test restart recovery before broader use.
 
+### Telemetry after a reconciled retry
+
+The Process receiver passes optional `run_id` to the operator-owned telemetry
+command when its trusted journal already binds the attempt to a native run.
+The telemetry implementation must apply this exact UUID **in addition to** its
+existing company, project, issue, assignee and creation-time filters. A missing
+matching run returns null. Without a binding, multiple candidates must still
+fail as ambiguous; never choose the latest run implicitly. The gateway also
+checks the returned UUID before accepting files. MCP callers cannot supply this
+binding themselves. Update both the gateway and site telemetry when adopting
+this correction; the site SQL and credentials are deliberately not bundled.
+
+This enables receipt of an explicitly reconciled retry. It does not authorize
+retries, stop providers, clear recovery holds or append attempts automatically.
+
+### Process adapter HTTP response bounds
+
+An adapter that discovers its task through `GET /heartbeat-runs/{own-run}` must
+allow for the actual context response size. The cooperation trial exposed a
+site adapter that read only 64 KiB and attempted to parse truncated JSON before
+starting a worker. Its separate operator-managed correction reads up to a 2 MiB
+success limit plus one byte and explicitly rejects oversized responses before
+JSON decoding. The 64 KiB error-body limit, redirect refusal, authentication and
+task-prompt limit remain unchanged. Large valid JSON, the exact new boundary and
+an oversized response were tested. This site adapter is not shipped in the
+bridge wheel; upgrading this package alone does not apply that correction.
+
 ## Optional real Concord projection
 
 Fetch and build Concord at the commit in `concord.py` using the upstream lockfile.

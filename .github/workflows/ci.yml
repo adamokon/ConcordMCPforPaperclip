@@ -19,5 +19,6 @@ jobs:
       - run: uv run python -m unittest discover -s examples/codex-e2e -v
       - run: uv run python examples/codex-e2e/operator_acceptance.py
       - run: uv run python -m unittest discover -s examples/codex-unattended -v
+      - run: uv run python -m unittest discover -s examples/cross-harness-cooperation -v
       - run: uv run python scripts/check_public_tree.py
       - run: uv build

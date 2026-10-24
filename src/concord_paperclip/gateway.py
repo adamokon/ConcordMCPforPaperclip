@@ -202,8 +202,13 @@ def execute(config, request):
                 resolve_recovery(config, context, backend)
             return result
         return native_call(config, operation)
-    run = call(config["telemetry_command"], {"action": "run", "issue_id": context["issue_id"],
-               "agent_id": identity, "after": context["created"]})
+    run_request = {"action": "run", "issue_id": context["issue_id"],
+                   "agent_id": identity, "after": context["created"]}
+    if context["run_id"]:
+        # A reconciled retry shares its issue with earlier terminal runs. Only
+        # the trusted journal may narrow telemetry to an already bound run.
+        run_request["run_id"] = str(uuid.UUID(context["run_id"]))
+    run = call(config["telemetry_command"], run_request)
     if not run or run["status"] not in {"succeeded", "failed", "cancelled", "timed_out"}:
         return {"pending": True}
     if context["run_id"] and context["run_id"] != run["id"]:

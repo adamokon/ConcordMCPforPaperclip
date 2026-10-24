@@ -13,9 +13,10 @@ Nie należy tworzyć drugiego roboczego egzemplarza z rozbieżnymi plikami.
 | `docs/pl/ODBIOR-CODEX.md` | Historyczny pilot 0.2.1 z udziałem operatora |
 | `docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md` | Pełne próby 0.3.0, recovery, odrzucenie i restart |
 | `docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md` | Nowa poprawka produkcyjna0.3.1, odbiór i przegląd przez MCP |
-| `docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md` | Częściowa próba dwóch wykonawców; odbiór Codex i pytanie przez Concord, dalszy wynik niepotwierdzony |
+| `docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md` | Pełny odbiór dwóch wykonawców, rzeczywiste Q&A przez Concord, recovery i cztery partie Done |
 | `docs/` | Techniczny kontrakt API, architektura, bezpieczeństwo, wdrożenie i ograniczenia |
 | `examples/codex-e2e/` | Publiczne pliki historycznego pilota |
+| `examples/cross-harness-cooperation/` | Rzeczywisty wspólny kod, kontrakt, pytania/odpowiedzi i 51 testów |
 | `examples/codex-unattended/` | Dokładne pliki końcowej próby i cztery powtarzalne testy |
 | `site-private/` | Lokalne skrypty, konfiguracja, inwentarz i surowe dowody; poza Git i dystrybucją |
 | `archive/` | Lokalne migawki publicznych źródeł, dokumentów i sum kontrolnych; poza Git |
