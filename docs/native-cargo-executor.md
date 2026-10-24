@@ -74,7 +74,7 @@ A dependency-free Rust fixture has executed successfully through all three
 recipes on native Apple Silicon macOS. The actual modified Proxmox xattr module
 and original proxmox-io sources have also compiled and passed tests using an
 offline source cache. The full native PBS client also compiles through this executor. The fixed
-`cargo-build` recipe requires an operator-selected `package` and builds only its
+`cargo-build` recipe (and its optimized `cargo-release` variant) requires an operator-selected `package` and builds only its
 same-named binary. After all build-UID processes stop, the launcher retains one
 bounded, regular Mach-O file opened without following target/debug symlinks.
 Its root-owned copy, length and SHA-256 appear in the receipt. It is an untrusted

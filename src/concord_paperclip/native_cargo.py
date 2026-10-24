@@ -167,10 +167,13 @@ def _fixture_recipe(toolchain, source, recipe, package=None, no_default_features
     argv = [str(toolchain / "bin" / "cargo")]
     if recipe == "cargo-check":
         argv += ["check"]
-    elif recipe == "cargo-build":
+    elif recipe in ("cargo-build", "cargo-release"):
         if package is None:
             raise NativeExecutionError("Build recipe requires an operator-selected package")
-        argv += ["build", "--bin", package]
+        argv += ["build"]
+        if recipe == "cargo-release":
+            argv += ["--release"]
+        argv += ["--bin", package]
     elif recipe in ("cargo-test", "macos-filesystem"):
         argv += ["test"]
     else:
@@ -284,9 +287,10 @@ def execute(raw, digest, policy_path, recipe, task_id, run_id):
         try:
             result = run_bounded(argv, str(workspace), env, policy["timeout"], policy["max_output"],
                                  uid=policy["uid"], gid=policy["gid"])
-            if recipe == "cargo-build" and result["status"] == "passed":
+            if recipe in ("cargo-build", "cargo-release") and result["status"] == "passed":
                 _cleanup_uid(policy["uid"])
-                artifact = _retain_binary(workspace / "target" / "debug", job, policy["package"])
+                artifact = _retain_binary(workspace / "target" / ("release" if recipe == "cargo-release" else "debug"),
+                                          job, policy["package"])
         finally:
             _cleanup_uid(policy["uid"])
             shutil.rmtree(workspace)
@@ -316,7 +320,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--policy", required=True)
     parser.add_argument("--sha256", required=True)
-    parser.add_argument("--recipe", choices=["cargo-check", "cargo-test", "macos-filesystem", "cargo-build"], required=True)
+    parser.add_argument("--recipe", choices=["cargo-check", "cargo-test", "macos-filesystem", "cargo-build", "cargo-release"], required=True)
     parser.add_argument("--task-id", required=True)
     parser.add_argument("--run-id", required=True)
     args = parser.parse_args()

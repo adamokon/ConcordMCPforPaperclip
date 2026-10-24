@@ -124,6 +124,8 @@ def test_build_recipe_requires_fixed_package():
         native_cargo._fixture_recipe(Path("/tools"), Path("/source"), "cargo-build")
     argv = native_cargo._fixture_recipe(Path("/tools"), Path("/source"), "cargo-build", "client")
     assert argv[1:4] == ["build", "--bin", "client"]
+    argv = native_cargo._fixture_recipe(Path("/tools"), Path("/source"), "cargo-release", "client")
+    assert argv[1:5] == ["build", "--release", "--bin", "client"]
 
 
 def test_artifact_rejects_links_and_non_macho(tmp_path):
