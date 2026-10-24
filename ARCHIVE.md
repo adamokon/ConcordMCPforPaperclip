@@ -13,6 +13,7 @@ Nie należy tworzyć drugiego roboczego egzemplarza z rozbieżnymi plikami.
 | `docs/pl/ODBIOR-CODEX.md` | Historyczny pilot 0.2.1 z udziałem operatora |
 | `docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md` | Pełne próby 0.3.0, recovery, odrzucenie i restart |
 | `docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md` | Nowa poprawka produkcyjna0.3.1, odbiór i przegląd przez MCP |
+| `docs/pl/AUTOMATYCZNE-RECOVERY.md` | Recovery0.4.0, trwały zamiar, restart i granice automatyzacji |
 | `docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md` | Pełny odbiór dwóch wykonawców, rzeczywiste Q&A przez Concord, recovery i cztery partie Done |
 | `docs/` | Techniczny kontrakt API, architektura, bezpieczeństwo, wdrożenie i ograniczenia |
 | `examples/codex-e2e/` | Publiczne pliki historycznego pilota |
@@ -34,8 +35,8 @@ Dawny płytki checkout nie jest przedstawiany jako pełna kopia.
 Zależności offline, LFS i submoduły mają osobną granicę opisaną w manifeście.
 Nie jest częścią naszego wheel ani sdist.
 
-Starsze raporty zachowują stan z daty ich powstania. Najnowszy odbiór 0.3.0
-obejmuje automatyczny Codex w opisanym zakresie. Każda lokalna migawka wydania
+Starsze raporty zachowują stan z daty ich powstania. Odbiór 0.3.0
+obejmuje automatyczny Codex, a raport 0.4.0 opisuje ograniczone recovery obu kanałów. Każda lokalna migawka wydania
 ma pełny bundle własnego repozytorium, snapshot źródeł, paczki, opis A4,
 manifest pochodzenia i SHA256SUMS. To nie jest pełne offline środowisko usług
 ani repozytorium wszystkich zależności. Szczegóły:

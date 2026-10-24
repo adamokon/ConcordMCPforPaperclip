@@ -439,6 +439,40 @@ class Engine:
                 c.execute("DELETE FROM claims WHERE task_id=?", (task["id"],))
                 c.execute("UPDATE operations SET state='done' WHERE task_id=? AND kind='review'", (task["id"],))
 
+    def reconcile_cancelled(self, task_id, version):
+        """Explicit operator readback of an already cancelled failed task.
+
+        This never cancels remotely and is not a model-facing MCP operation.
+        """
+        self.actor.require("coordinator")
+        with self.store.connect() as c:
+            task = self._task(c, task_id)
+        remote = self.backend.issue(task["issue_id"])
+        if (remote.get("status") != "cancelled" or remote.get("executionRunId")
+                or remote.get("checkoutRunId")):
+            raise BridgeError("REMOTE_CANCELLATION_REQUIRED")
+        with self.store.transaction() as c:
+            task = self._task(c, task_id)
+            if task["state"] == "cancelled":
+                return {"id": task_id, "state": "cancelled"}
+            if task["state"] != "execution_failed" or task["version"] != version:
+                raise BridgeError("STALE_VERSION")
+            attempt = c.execute("SELECT * FROM attempts WHERE task_id=? ORDER BY number DESC LIMIT 1",
+                                (task_id,)).fetchone()
+            if (not attempt or attempt["state"] != "terminal"
+                    or json.loads(attempt["evidence"] or "{}").get("environment_removed") is not True
+                    or c.execute("SELECT 1 FROM manifests WHERE task_id=?", (task_id,)).fetchone()):
+                raise BridgeError("TERMINAL_CLEANUP_REQUIRED")
+            if any(json.loads(r["spec"]).get("parent_id") == task_id
+                   and r["state"] not in {"complete", "cancelled"}
+                   for r in c.execute("SELECT spec,state FROM tasks")):
+                raise BridgeError("DEPENDENCIES_PENDING")
+            self._set(c, task_id, "cancelled")
+            c.execute("DELETE FROM claims WHERE task_id=?", (task_id,))
+            self.store.audit(c, self.actor.name, task_id, "operator_cancelled_reconciled",
+                             {"run_id": attempt["run_id"], "native_status": "cancelled"})
+        return {"id": task_id, "state": "cancelled"}
+
     def recover(self):
         self.actor.require("coordinator")
         with self.store.transaction() as c:

@@ -130,3 +130,12 @@ Po awarii zachowano istniejące zadania i historię, uzgodniono stan przez nativ
 recovery i naprawiono wybór przebiegu oraz zbyt mały limit odpowiedzi HTTP
 w adapterze. To nadzorowana współpraca bez ręcznych odpowiedzi i kliknięć,
 a nie dowód ogólnego, samoczynnego odtwarzania infrastruktury.
+
+
+## Automatyczne recovery 0.4.0
+
+[Odbiór recovery](AUTOMATYCZNE-RECOVERY.md) potwierdza ograniczone ponowienie
+przed modelem, restart po trwałej rezerwacji i odnalezienie następcy po utracie
+odpowiedzi API. Jedna sprawa zachowała dwie próby i pojedynczy resolve; nowe
+pliki przeszły niezależne testy i przegląd. Wstrzykiwanie awarii wyłączono po
+odbiorze. Nieznane skutki, auth/quota i pauza nadal zatrzymują automatyzację.

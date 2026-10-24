@@ -18,9 +18,12 @@ def call(command, request, *, timeout=100, limit=2_000_000):
     data = canonical(request).encode()
     if len(data) > limit:
         raise BridgeError("FIXED_COMMAND_INPUT_LIMIT")
-    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.DEVNULL, start_new_session=True,
-                               env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"})
+    try:
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL, start_new_session=True,
+                                   env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"})
+    except OSError:
+        raise BridgeError("FIXED_COMMAND_FAILED") from None
     output = bytearray()
     deadline = time.monotonic() + timeout
     try:

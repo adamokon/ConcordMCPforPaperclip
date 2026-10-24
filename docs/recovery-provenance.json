@@ -1,0 +1,55 @@
+{
+  "release": "0.4.0",
+  "received_on": "2026-10-24/25",
+  "base_commit": "64276dc1464c1dfde593d17bb53c94a47a43c848",
+  "public_sources_only": true,
+  "parts": [
+    {
+      "path": "src/concord_paperclip/recovery_policy.py",
+      "contributor": "Antigravity",
+      "model_configuration_or_usage": "gemini-3.8-flash-high",
+      "provider_attested": false,
+      "original_received_sha256": "39336dc87ab50860d22c2827290f0f36db4e453fe16b9780c3d0b2be55e0703f",
+      "integrated_sha256": "083c3fee708b211affdaef50e4288ee5afaf27e74f0ab28e428dc977b919ac2a"
+    },
+    {
+      "path": "src/concord_paperclip/recovery_evidence.py",
+      "contributor": "Antigravity",
+      "model_configuration_or_usage": "gemini-3.8-flash-high",
+      "provider_attested": false,
+      "original_received_sha256": "42c0eeba703d4e2239ecbc9ef82e73baa9ee26d42491d071089e10354ad38e3b",
+      "integrated_sha256": "09da5f46672f174351292989c61cfa10fe4ffe1bc5460cf397b2459a83b47695"
+    },
+    {
+      "path": "src/concord_paperclip/recovery_state.py",
+      "contributor": "Codex",
+      "model_configuration_or_usage": "gpt-6.1-sol",
+      "provider_attested": false,
+      "original_received_sha256": "5f8406d94fd5312a953fe6675ae8e16ed2a641f171625eea9fc8434d67d0b253",
+      "integrated_sha256": "0b34bccf4e3d279ad5dd74b13e251f1ee11d9bd0c3227e9dc048469126c6f3ff"
+    },
+    {
+      "path": "src/concord_paperclip/recovery_driver.py",
+      "contributor": "Codex",
+      "model_configuration_or_usage": "gpt-6.1-sol",
+      "provider_attested": false,
+      "original_received_sha256": "d8cd5dcf618a426ff8eee22cc7e28c4473e65c396481701a80f012c9bcb20892",
+      "integrated_sha256": "8f1ed343446dd55deced6fb63371465238b7c2a1ec845ced9fff351545420d47"
+    },
+    {
+      "path": "src/concord_paperclip/recovery_summary.py",
+      "contributor": "Antigravity",
+      "model_configuration_or_usage": "gemini-3.8-flash-high",
+      "provider_attested": false,
+      "original_received_sha256": "ea2afd9333b3fa211c0a11f8a595cfdb1a319977f141871a24204db1f7c2fec1",
+      "integrated_sha256": "ea2afd9333b3fa211c0a11f8a595cfdb1a319977f141871a24204db1f7c2fec1"
+    }
+  ],
+  "supervisor_changes": [
+    "Package imports; finite/malformed input hardening; duplicate proof keys and stale-lock rejection",
+    "Real bridge terminal/profile/service-owner schema and prepared restart corrections requested from Codex",
+    "Pre-request dispatch lower bound with separate receipt time",
+    "Fixed privileged host integration, existing receiver cycle, bounded queued/backlog wake, independent tests",
+    "Site adapter/configuration and raw operational evidence excluded from publication"
+  ]
+}

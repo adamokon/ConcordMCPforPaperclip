@@ -1,6 +1,6 @@
 """Privileged host gateway behind a dedicated forced-command SSH account.
 
-Only probe and receive(task UUID) are accepted. All paths, profiles, containers
+Only fixed probe, receipt and opt-in recovery requests are accepted. All paths, profiles, containers
 and executable commands come from root-owned config or the coordinator journal.
 No model task execution, shell strings, credentials or raw worker logs returned.
 """
@@ -165,6 +165,9 @@ def native_call(config, operation):
 def execute(config, request):
     if not isinstance(request, dict):
         raise BridgeError("INVALID_REQUEST")
+    if request.get("action") in {"recovery-inspect", "recovery-resolve"}:
+        from .recovery_host import execute as recovery_execute
+        return recovery_execute(config, request)
     if request == {"action": "probe"}:
         native_profiles = {k: v for k, v in config["profiles"].items()
                            if isinstance(v, dict) and v.get("adapter_type") == "codex_local"}
@@ -183,6 +186,9 @@ def execute(config, request):
             result[identity] = {**probe, "observed_at": time.time(), "agent_status": agent["status"],
                                "adapter_type": agent["adapterType"], "active_runs": agent["active_runs"],
                                "provider_auth": "unknown", "provider_quota": "unknown"}
+        if config.get("recovery", {}).get("policy", {}).get("enabled") is True:
+            from .fixed_command import call as fixed_call
+            result["_coordinator"] = fixed_call(config["recovery"]["native_command"], {"action": "coordinator"})
         return result
     if set(request) != {"action", "task_id"} or request["action"] != "receive":
         raise BridgeError("INVALID_REQUEST")
@@ -236,8 +242,9 @@ def main():
     try:
         from .config import load_config
         config = load_config(sys.argv[1])
-        if any(isinstance(p, dict) and p.get("adapter_type") == "codex_local"
-               for p in config.get("profiles", {}).values()):
+        recovery_enabled = config.get("recovery", {}).get("policy", {}).get("enabled") is True
+        if recovery_enabled or any(isinstance(p, dict) and p.get("adapter_type") == "codex_local"
+                                   for p in config.get("profiles", {}).values()):
             from .config import require_root_config
             require_root_config(sys.argv[1])
         raw = sys.stdin.buffer.read(4097)

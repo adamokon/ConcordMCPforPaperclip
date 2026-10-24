@@ -1,4 +1,4 @@
-# Version and recovery review on 2026-10-24
+# Version and recovery review on 2026-10-24/25
 
 Checked official release and public advisory endpoints before the final 0.3.0
 installation. Rechecked the same official release/advisory and signature metadata
@@ -45,6 +45,29 @@ it does not expand the bridge's persistent API key.
 The supported verification matrix is Python 3.11 and 3.13 on Linux, with local
 macOS checks and a Linux-only process visibility test skipped on macOS. Actual
 service acceptance is against the installed target, not inferred from unit tests.
+
+## Recovery 0.4.0 review
+
+Official release, advisory and selected tag signature endpoints were checked
+again at 21:56 UTC on October 24 before preparing/building the recovery overlay.
+The release/advisory observations above remain unchanged: MCP1.30.0, Concord0.16.0,
+and the installed Paperclip target are retained. The bridge starts from
+`64276dc1464c1dfde593d17bb53c94a47a43c848`; its reviewed changes are version0.4.0.
+Only the editable project version changed in the lockfile; dependency versions
+and distribution hashes remain pinned. `uv sync --extra dev --locked --offline`
+succeeded. Earlier offline lock re-resolution lacked unrelated platform cache;
+no dependency upgrade or unsupported compatibility claim was inferred from it.
+
+Deployment uses an isolated root-owned source overlay for the existing Process
+receiver and fixed gateway capabilities, retaining installed interpreter/SDK.
+The original MCP brokers and their service versions remain distinct. A narrow
+Codex wrapper backport removes API credentials from the child CLI environment;
+the site Process adapter gains a strictly pre-provider exit75 attestation.
+That site-specific adapter/configuration is excluded from public packages.
+The root native capability requires the deployed Paperclip recovery API contract;
+it is not claimed compatible with arbitrary upstream Paperclip installations.
+Selected package/source checksums and live acceptance are in the release manifest
+and the [recovery report](pl/AUTOMATYCZNE-RECOVERY.md).
 
 ## Offline recovery boundary
 

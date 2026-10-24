@@ -46,8 +46,13 @@ def execute(config, argv, *, backend=None):
         validate_repair(config, backend, run, source, issue)
         executor_handoff(config, backend, run_id)
         return 0
-    # The real CLI receives unchanged argv, stdin/stdout, env and exit status.
-    result = subprocess.run(command + list(argv), check=False)
+    # For bridge work, only this fixed wrapper owns native handoff. Do not
+    # invite ordinary model-side Paperclip skills to close the issue early.
+    options = {"check": False}
+    if scoped:
+        options["env"] = {k: v for k, v in os.environ.items()
+                          if k not in {"PAPERCLIP_API_KEY", "PAPERCLIP_API_URL"}}
+    result = subprocess.run(command + list(argv), **options)
     if scoped and result.returncode == 0:
         executor_handoff(config, backend, run_id)
     return result.returncode

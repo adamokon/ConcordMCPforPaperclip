@@ -6,13 +6,13 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.3.2.** Native Codex receipt, fixed executor review handoff,
+**Status: experimental v0.4.0.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
 Live normal/recovery trials reached Done unattended; a failing-test trial was
 rejected. Completion uses a separately provisioned, exact-manifest owner-policy
 capability. See the [live report](docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md).
 See [native receipt deployment and E2E recipe](docs/native-codex-receipt.md).
-A genuinely new production readiness fix was also received, independently tested,
+A new production readiness fix was also received, independently tested,
 reviewed through MCP and finalized without operator intervention; see the
 [0.3.1 real-code acceptance](docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md).
 The [Codex–Antigravity cooperation trial](docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md)
@@ -22,7 +22,11 @@ batches reached native Done and bridge complete after independent review.
 The [public example](examples/cross-harness-cooperation/) passes 51 tests.
 Version 0.3.2 corrects receipt of an explicitly bound Process retry; site telemetry
 must support the corresponding optional run ID. Cooperation remains mediated
-by an active supervisor, with privileged, audited recovery when required.
+by an active supervisor for code review. Version 0.4.0 adds opt-in, root-scoped
+pre-provider recovery in the existing receiver, a durable one-shot intent and
+actual-successor reconciliation after lost responses. Unknown effects, auth/quota
+and paused profiles remain blocked. See the [recovery design and acceptance
+report](docs/pl/AUTOMATYCZNE-RECOVERY.md).
 
 Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.

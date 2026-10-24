@@ -12,7 +12,7 @@ from .policy import BridgeError
 
 
 def execute(config, request):
-    if not isinstance(request, dict) or request.get("action") not in {"probe", "collect", "check"}:
+    if not isinstance(request, dict) or request.get("action") not in {"probe", "collect", "check", "preflight"}:
         raise BridgeError("INVALID_REQUEST")
     profile = config["profiles"][request["profile"]]
     home = Path(profile["home"])
@@ -42,6 +42,12 @@ def execute(config, request):
     if request["action"] == "check":
         return {"environment_removed": True}
     root = home / "workspaces" / run_id
+    if request["action"] == "preflight":
+        # No absent-files heuristic: this fact is only one prerequisite for a
+        # separately authenticated fixed-adapter pre-provider attestation.
+        if request["run_id"] != run_id:
+            raise BridgeError("INVALID_RUN_ID")
+        return {"environment_removed": True, "workspace_absent": not os.path.lexists(root)}
     state = snapshot(root, ["result.json"], ["result.json"], {})
     import base64
     result = json.loads(base64.b64decode(state["manifest"]["files"][0]["content_base64"]))

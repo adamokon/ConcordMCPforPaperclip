@@ -181,3 +181,31 @@ untrusted generated code, new Kubernetes test isolation, automatic merging,
 provider credential renewal and live model-to-model injection were not tested
 or enabled. The actual worker smoke is deliberately small; it is not a benchmark
 or proof of general repository-scale execution.
+
+
+## Recovery 0.4.0
+
+Local macOS checks: **583 passed, one Linux-only test skipped**; ruff and native
+backend JavaScript syntax check pass. The actual policy, decoder, durable journal
+and controller are combined in SQLite integration tests. Negative cases cover
+forged/stale facts, changed scope, auth/quota/pause, active runs, exhausted budget,
+prepared restart, concurrent request claims, response loss without replay,
+read-only context and bounded queued/backlog wake. The new reporting helper
+passes its original36tests and an independent11111-history counting oracle.
+
+Live Paperclip acceptance retained one issue and two execution runs: authenticated
+pre-provider failure75, then success0. The existing receiver restarted after
+prepared, reconciled one accepted resolve after simulated response loss, bound
+the actual successor, received all three expected files and ran the independent
+credential-free deny-all K3s verifier. Local original36tests also passed. Native
+review accepted, issue Done, bridge complete, claims0. No manual journal/profile
+repair or service restart occurred from the controlled failure to receipt. An
+earlier absolute-path configuration defect during setup was corrected and is
+reported separately. Fault injection is disabled after acceptance.
+
+All four accepted development/acceptance batches are Done/complete with claims0.
+One earlier failed Codex handoff remains rejected/cancelled, never reclassified
+as successful. These results do not grant automatic acceptance of arbitrary new
+code or retry authority for unknown provider effects. See the
+[full recovery report](pl/AUTOMATYCZNE-RECOVERY.md). CI results are available in
+[GitHub Actions](https://github.com/adamokon/ConcordMCPforPaperclip/actions).

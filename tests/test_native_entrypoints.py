@@ -101,7 +101,15 @@ def test_executor_wrapper_passthrough_and_own_handoff(native_setup, monkeypatch,
     monkeypatch.setattr("concord_paperclip.executor_wrapper.subprocess.run", process)
     arguments = ["exec", "--json", "literal $(no-shell) argument"]
     assert execute(config, arguments, backend=backend) == exitcode
-    process.assert_called_once_with(["/fixed/codex", *arguments], check=False)
+    if ordinary:
+        process.assert_called_once_with(["/fixed/codex", *arguments], check=False)
+    else:
+        args, options = process.call_args
+        assert args == (["/fixed/codex", *arguments],)
+        assert options["check"] is False
+        assert "PAPERCLIP_API_KEY" not in options["env"]
+        assert "PAPERCLIP_API_URL" not in options["env"]
+        assert options["env"]["PAPERCLIP_RUN_ID"] == run["id"]
     assert bool(backend.interactions) is (not ordinary and exitcode == 0)
     if backend.writes:
         assert backend.writes[0]["status"] == "in_review"

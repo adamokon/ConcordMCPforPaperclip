@@ -12,7 +12,8 @@ def main():
     parser.add_argument("--config")
     parser.add_argument("command", choices=["serve", "doctor", "drain", "native", "inspect", "recover", "backup",
                                              "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client",
-                                             "receive", "probe", "gateway-context", "stdio-handoff", "executor-handoff", "receive-cycle"])
+                                             "receive", "probe", "gateway-context", "stdio-handoff", "executor-handoff", "receive-cycle",
+                                             "reconcile-cancelled", "recovery-context", "recovery-cycle"])
     parser.add_argument("--task")
     parser.add_argument("--version", type=int)
     parser.add_argument("--issue")
@@ -38,7 +39,7 @@ def main():
         if args.handoff is not None:
             raise BridgeError("HANDOFF_COMMAND_REQUIRED")
         config = load_config(args.config)
-        if config.get("native_completion") is not None or config.get("synthetic_review", {}).get("enabled") is True:
+        if config.get("recovery_policy", {}).get("enabled") is True or config.get("native_completion") is not None or config.get("synthetic_review", {}).get("enabled") is True:
             from .config import require_root_config
             require_root_config(args.config)
         if args.command == "broker":
@@ -59,6 +60,12 @@ def main():
                                 trusted_http_hosts=config.get("trusted_http_hosts", []))
             print(json.dumps(executor_handoff(config, backend, run_id)))
             return
+        if args.command == "recovery-context":
+            from .config import require_root_config
+            from .recovery_service import read_context
+            require_root_config(args.config)
+            print(json.dumps(read_context(config, args.task)))
+            return
         engine = make_engine(config)
         if args.command == "serve":
             from .server import build_server
@@ -74,6 +81,9 @@ def main():
             result = execute(config)
         elif args.command == "drain":
             result = engine.drain()
+        elif args.command == "recovery-cycle":
+            from .recovery_service import cycle
+            result = cycle(engine, config)
         elif args.command == "receive-cycle":
             from .automation import receive
             from .synthetic_review import approve
@@ -103,6 +113,8 @@ def main():
                       "paths": json.loads(task["spec"])["paths"]}
         elif args.command == "recover":
             result = engine.recover()
+        elif args.command == "reconcile-cancelled":
+            result = engine.reconcile_cancelled(args.task, args.version)
         elif args.command == "inspect":
             result = engine.inspect(args.task)
         elif args.command == "backup":
