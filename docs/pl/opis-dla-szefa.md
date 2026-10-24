@@ -23,4 +23,3 @@ Punktem wyjścia był otwarty Concord MCP oraz koncepcja współpracy agentów o
 ## Sens dalszego rozwoju
 
 Wartość stanowi kontrolowany, możliwy do prześledzenia obieg zlecenia i plików. Następny etap to automatyzacja odbioru Codex, pewne parkowanie zadania do przeglądu oraz pomiar czasu, kosztu i liczby poprawek. Nie zmierzono jeszcze zwrotu z inwestycji. Obecny etap nie uzasadnia pełnej autonomii produkcyjnej ani przekazywania dokumentów poufnych.
-
