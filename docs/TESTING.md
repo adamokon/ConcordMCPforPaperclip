@@ -1,4 +1,40 @@
-# Test evidence — 2026-10-23
+# Test evidence
+
+## v0.2 acceptance — 2026-10-24
+
+- **116 pytest cases passed**, Ruff passed, wheel/sdist built.
+- A real enrolled Antigravity worker (`gemini-3.8-flash-high`) implemented the
+  readiness module now used by this project. Its 45 unittest cases passed in the
+  worker, then in the independent credential-free Kubernetes verifier, and in
+  the repository suite after package-import adaptation. Source was reviewed.
+- Actual MCP initialization over a dedicated forced-command SSH account listed
+  ten tools, returned v0.2 health/fresh readiness, received the exact native run
+  and files, and recorded a manifest-bound review followed by confirmed Done.
+- SSH arbitrary-command denial was exercised. Readiness distinguishes unavailable,
+  not-enrolled and eligible profiles while keeping provider auth/quota unknown.
+- A real hard-exit subprocess test kills the bridge after external issue creation
+  but before local confirmation. Restart quarantines it, creates no duplicate,
+  adopts the exact marker-bound issue and restores a SQLite backup without replay.
+- Receipt tests reject wrong agents/runs/digests, changed file content, failed
+  verification and missing cleanup. Question import is atomic/idempotent; linked
+  continuation carries verified partial files and excludes protocol sidecars.
+- Actual sandbox tests confirm UID65532, absent OAuth and SA token, read-only
+  root and network syscall denial. A same-namespace/image/UID positive-control
+  pod can reach a known live TCP listener; the normal verifier gets EPERM under
+  its stricter seccomp profile. Control labels/results cannot pass ordinary
+  receipt's deny-all gate.
+
+The initial NetworkPolicy-only experiment exposed an early connection before
+policy enforcement. The final verifier adds a derived default-deny OCI seccomp
+profile blocking networking and io_uring before Python starts. Neither the failed
+initial image-reference test nor that policy race is counted as a successful
+security check. Full private IDs, evidence and inventory stay outside this repo.
+
+No provider quota was intentionally exhausted, no model cancellation route was
+enabled, and no live cross-profile conversation is claimed. Batch continuation
+has automated fixture coverage; the real model task above produced code directly.
+
+## v0.1 historical evidence — 2026-10-23
 
 ## Local automated checks
 

@@ -1,0 +1,20 @@
+[Unit]
+Description=Receive existing Paperclip runs without starting model work
+After=network.target
+[Service]
+Type=oneshot
+User=concord-bridge
+Group=paperclip
+SupplementaryGroups=concord-bridge
+UMask=0077
+LoadCredential=paperclip-token:/etc/concord-paperclip/paperclip.token
+LoadCredential=gateway-key:/etc/concord-paperclip/gateway-key
+ExecStart=/opt/concord-paperclip-venv/bin/python -I -m concord_paperclip.cli --config /etc/concord-paperclip/config.json receive
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/concord-paperclip
+MemoryMax=256M
+TimeoutStartSec=180

@@ -5,7 +5,11 @@
    because a client disconnected. Finish or cancel through native operator tools.
 3. Disable the dedicated coordinator's on-demand execution while retaining its
    record, key metadata and audit history.
-4. Stop/disable the local broker unit. There is no public listener to remove.
+4. Stop/disable the receive-only timer and receiver service, then the broker.
+   There is no public listener to remove. Revoke the two dedicated forced-command
+   SSH keys when retiring this deployment, and remove their exact sudo entries.
+   Preserve other SSH access. Delete only verifier resources after checking no
+   receipt is running. Keep node seccomp profiles until no Job references them.
 5. Keep the journal and exact package/config version. Before updates, run
    `paperclip-bridge --config PRIVATE_PATH backup --destination NEW_FILE`.
 6. A SQLite backup alone does not roll back Paperclip. Reconcile all remote writes

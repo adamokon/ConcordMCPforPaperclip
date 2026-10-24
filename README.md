@@ -6,8 +6,8 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.1.0.** The core is tested; a scoped deployment and
-native coordinator run have been exercised. See [test evidence](docs/TESTING.md)
+**Status: experimental v0.2.0.** A real project module has passed the complete
+worker, receipt, independent sandbox and operator-review path. See [v0.2](docs/V02.md), [test evidence](docs/TESTING.md)
 and [limitations](docs/LIMITATIONS.md) before enabling execution.
 
 ## Why this exists
@@ -67,14 +67,17 @@ Dispatch is a separate operation with recent trusted readiness evidence.
 | `paperclip_inspect_work` | Read journal and authoritative Paperclip status |
 | `paperclip_wait_work` | Bounded wait for a local version change |
 | `paperclip_message` | Record task Q&A; does not claim live model delivery |
-| `paperclip_artifacts` | Read an operator-collected verified snapshot |
+| `paperclip_artifacts` | Read a verified snapshot received by the trusted collector |
+| `paperclip_receive_results` | Receive existing terminal runs and independent verification |
 | `paperclip_continue_batch` | Prepare a linked continuation with partial files |
 | `paperclip_review_work` | Attest review and queue final task status |
 
 Worker configuration, arbitrary file collection, run evidence and policy changes
 are deliberately absent from the model-facing tools. Those are operator CLI
 operations. Worker-to-worker cooperation is mediated by the coordinator; a
-worker cannot grant itself delegation authority.
+worker cannot grant itself delegation authority. An optional receive-only systemd
+timer observes existing runs after the chat ends. It never creates model work,
+rotates accounts, approves code or deploys it.
 
 Read [architecture](docs/ARCHITECTURE.md), [security](docs/SECURITY.md),
 [deployment](docs/DEPLOYMENT.md), [API contract](docs/API.md) and

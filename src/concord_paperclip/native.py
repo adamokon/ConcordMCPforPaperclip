@@ -40,6 +40,9 @@ def execute(config, run_id=None, runtime_token=None):
         if old_issue.get("status") not in {"done", "cancelled"}:
             engine.backend.patch(issue_id, {"status": "cancelled"})
     engine.recover()
+    if config.get("gateway_command"):
+        from .automation import refresh_profiles
+        refresh_profiles(engine, config)
     result = {"created": engine.drain(), "dispatches": []}
     with engine.store.connect() as c:
         tasks = [dict(r) for r in c.execute("SELECT id,version FROM tasks WHERE state='backlog'")]

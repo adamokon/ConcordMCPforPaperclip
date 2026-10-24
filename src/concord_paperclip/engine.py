@@ -129,6 +129,10 @@ class Engine:
             result["messages"] = [dict(m) for m in c.execute(
                 "SELECT id,sender,recipient,body,reply_to,state FROM messages WHERE task_id=? "
                 "AND (sender=? OR recipient=?) ORDER BY created", (task_id, self.actor.name, self.actor.name))]
+            verification = c.execute("SELECT details FROM audit WHERE task_id=? AND event='independent_tests' "
+                                     "ORDER BY id DESC LIMIT 1", (task_id,)).fetchone()
+            if verification:
+                result["verification"] = json.loads(verification[0])
             if row["issue_id"]:
                 remote = self.backend.issue(row["issue_id"])
                 result["paperclip"] = {k: remote.get(k) for k in (
@@ -352,6 +356,8 @@ class Engine:
         inputs = {}
         try:
             for f in record["manifest"]["files"]:
+                if f["path"] == "bridge_question.json":
+                    continue  # Protocol sidecar is represented by the linked Q&A.
                 inputs[f["path"]] = base64.b64decode(f["content_base64"], validate=True).decode("utf-8")
         except (ValueError, UnicodeError):
             raise BridgeError("BATCH_INPUT_NOT_TEXT") from None

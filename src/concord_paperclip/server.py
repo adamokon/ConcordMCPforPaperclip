@@ -50,8 +50,18 @@ def build_server(engine, config):
     @mcp.tool()
     async def paperclip_list_executors() -> dict:
         """Sanitized company roster; readiness is NOT inferred from idle status."""
+        if config.get("gateway_command"):
+            from .automation import refresh_profiles
+            return {"agents": await invoke(refresh_profiles, engine, config),
+                    "readiness": "Fresh trusted probe; unknown provider auth/quota remain unknown"}
         result = await invoke(engine.backend.agents)
         return {"agents": result, "readiness": "Requires operator probe and time-bounded trusted config"}
+
+    @mcp.tool()
+    async def paperclip_receive_results() -> dict:
+        """Receive completed existing runs and independent sandbox results. Never starts a model."""
+        from .automation import receive
+        return {"results": await invoke(receive, engine, config)}
 
     @mcp.tool()
     async def paperclip_submit_work(idempotency_key: str, title: str, description: str, repo: str,

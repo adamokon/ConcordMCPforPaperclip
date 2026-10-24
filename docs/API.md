@@ -101,3 +101,28 @@ collector before using a local directory. A comment is not a file-transfer API.
 - Readiness is explicit and time-bounded; one local active attempt per profile.
 
 See [limitations](LIMITATIONS.md) for non-automated operations.
+
+## v0.2 receiver
+
+`paperclip_receive_results()` and the trusted `receive` CLI inspect only existing
+running/execution-completed journal tasks. They cannot select commands, paths,
+principals, evidence or profiles. A receive-only timer may invoke the same CLI.
+The fixed gateway independently derives every task's exact scope from the journal.
+
+`paperclip_list_executors()` uses fresh trusted probes when a gateway is configured.
+It reports an eligibility/rejection code and separate provider auth/quota fields.
+Unknown auth/quota are never converted into confirmed available capacity.
+
+`inspect` includes recorded independent verification when present. A terminal
+failed/cancelled/timed-out run becomes `execution_failed` only after exact cleanup
+evidence; no automatic retry or profile rotation follows. Claims remain held.
+Failed independent tests become `verification_failed`: their files/claims remain
+for operator inspection, while the demonstrably cleaned worker slot is released.
+Receiver config must name `verifier_seccomp_profile`; evidence for a different
+profile is rejected before it can release a slot or become review-ready.
+
+`bridge_question.json` is reserved protocol metadata. It is imported as one
+durable worker question and omitted from continuation source inputs. A batch
+without test files can receive `kind=clarification_validation`; that is not code
+test acceptance. Automated code verification supports top-level Python/unittest
+files and rejects directory-prefix scopes for receipt in this pilot.

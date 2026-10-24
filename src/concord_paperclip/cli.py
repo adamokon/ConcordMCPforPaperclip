@@ -11,7 +11,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config")
     parser.add_argument("command", choices=["serve", "doctor", "drain", "native", "inspect", "recover", "backup",
-                                             "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client"])
+                                             "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client",
+                                             "receive", "probe", "gateway-context"])
     parser.add_argument("--task")
     parser.add_argument("--version", type=int)
     parser.add_argument("--issue")
@@ -49,6 +50,24 @@ def main():
             result = execute(config)
         elif args.command == "drain":
             result = engine.drain()
+        elif args.command == "receive":
+            from .automation import receive
+            result = receive(engine, config)
+        elif args.command == "probe":
+            from .automation import refresh_profiles
+            result = refresh_profiles(engine, config)
+        elif args.command == "gateway-context":
+            import uuid
+            task_id = str(uuid.UUID(args.task))
+            with engine.store.connect() as c:
+                task = engine._task(c, task_id)
+                attempt = c.execute("SELECT * FROM attempts WHERE task_id=? ORDER BY number DESC LIMIT 1",
+                                    (task_id,)).fetchone()
+            if not attempt:
+                raise BridgeError("NO_ATTEMPT")
+            result = {"task_id": task_id, "issue_id": task["issue_id"], "state": task["state"],
+                      "created": task["created"], "profile": attempt["profile"], "run_id": attempt["run_id"],
+                      "paths": json.loads(task["spec"])["paths"]}
         elif args.command == "recover":
             result = engine.recover()
         elif args.command == "inspect":

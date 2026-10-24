@@ -1,0 +1,8 @@
+[Unit]
+Description=Collect already dispatched Paperclip results
+[Timer]
+OnBootSec=30
+OnUnitInactiveSec=30
+Unit=concord-paperclip-receiver.service
+[Install]
+WantedBy=timers.target

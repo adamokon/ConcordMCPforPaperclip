@@ -1,5 +1,13 @@
 # Deployment
 
+For the optional v0.2 receiver, restricted SSH gateways, fresh probes and
+credential-free verification, follow [the v0.2 trust/deployment requirements](V02.md).
+Install the content-addressed network-blocking seccomp profile on every eligible
+test node **before** enabling the receiver. Adapt the example receiver service and
+timer; they receive existing work and do not dispatch models. Supply the separate
+gateway SSH key using LoadCredential. The v0.1 manual path below remains available
+for trusted operator work; it does not by itself install the v0.2 protections.
+
 ## 1. Verify and provision
 
 Read the installed Paperclip schemas and routers. Provision a dedicated
