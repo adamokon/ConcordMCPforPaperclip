@@ -1,5 +1,9 @@
 # Repository executor contract (preparatory API)
 
+The separately implemented [native Cargo verifier](native-cargo-executor.md)
+now provides real source transport and Darwin execution. This request validator
+is still not wired into MCP repository submission or the Antigravity pilot.
+
 `concord_paperclip.executor_contract.validate_request` is a pure validation
 primitive for a future repository executor. It performs no checkout, dispatch,
 build or verification. Existing MCP submission and runtime behavior are unchanged.
