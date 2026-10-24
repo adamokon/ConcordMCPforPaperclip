@@ -98,6 +98,12 @@ kontrolowane recovery i ograniczoną akceptację prób syntetycznych.
 
 ## Stan i granice zastosowania
 
+[Odbiór automatyzacji 0.3.0](ODBIOR-AUTOMATYCZNY-CODEX.md) potwierdza dwie
+świeże próby zakończone Done bez operatora, odrzucenie błędnych testów i restart
+bez powielania zatwierdzeń. Naprawa dyspozycji nie uruchomiła ponownie modelu.
+Akceptację końcową wykonuje jawnie skonfigurowana, ograniczona brama właściciela;
+nie udaje ona natywnego agenta recenzenta.
+
 Wersja kodu wykonawczego to 0.3.0. Kontrola dostępu, niepewne zapisy,
 ponowienia, zakresy plików i kontynuacje mają testy automatyczne. Po utracie
 odpowiedzi na nieidempotentne utworzenie zadania system zatrzymuje niepewną

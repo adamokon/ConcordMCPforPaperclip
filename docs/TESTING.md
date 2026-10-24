@@ -1,3 +1,19 @@
+# Test evidence
+
+## 0.3.0 live acceptance on 2026-10-24
+
+Supervisor: Linux **376 passed**, macOS **375 passed + 1 Linux-only skip**;
+Ruff and wheel/sdist build passed. Actual official MCP submission, native Codex
+execution, timer receipt, isolated K3s tests, exact-byte MCP readback and bounded
+owner-policy completion succeeded for fresh normal and disposition-recovery
+trials. The real repair used zero input/output tokens in Paperclip telemetry.
+A separate intentional failing-test trial remained verification_failed, without
+approval/Done and with claims retained. Broker/receiver restart changed no journal
+state, manifests or acceptance records. Initial agent409 acceptance failures are
+excluded from the final unattended evidence. See the [full live report](pl/ODBIOR-AUTOMATYCZNY-CODEX.md).
+
+The following revision notes describe local and HTTP fixture coverage separately.
+
 Revision 5: **376 local tests passed (27.17 s)**. Ruff and sdist/wheel build
 passed. It corrects the false v4 native-agent acceptance fixture; exact commands
 are recorded in the handoff REPORT.
@@ -37,9 +53,8 @@ New fixture tests cover native run pinning, restart snapshots, full binding,
 cleanup/proc visibility, unsafe artifacts, fresh Codex probes, exact recovery
 contracts/403 quarantine, opt-in hash-bound synthetic review, independent runner
 pass/fail and confirmed Done reconciliation. See `native-codex-receipt.md` for
-the required live supervisor E2E recipe. No live deployment is claimed.
+the required live supervisor E2E recipe. Those fixtures alone do not prove deployment; the separate live acceptance is recorded above.
 
-# Test evidence
 
 ## v0.2.1 — 2026-10-24
 

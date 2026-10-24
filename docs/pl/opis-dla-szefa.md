@@ -1,8 +1,8 @@
 # Concord MCP for Paperclip
 
-Informacja dla kierownictwa • 24 października 2026 • wersja 0.2.1
+Informacja dla kierownictwa • 24 października 2026 • wersja 0.3.0
 
-Uruchomiliśmy eksperymentalny most do zlecania prac agentom AI w Paperclip i odbierania sprawdzonych wyników przez MCP. Pełny test z agentem Codex zakończył się wykonaniem kodu, odbiorem plików, niezależnymi testami i zatwierdzeniem. Rekomendujemy dalszy pilot na małych, publicznych lub syntetycznych zadaniach.
+Zautomatyzowaliśmy obieg małych zadań agentów Codex w Paperclip: odbiór plików, niezależne testy i obsługę naprawy po zakończeniu procesu. Próby syntetyczne mogą także zakończyć się automatycznym zatwierdzeniem według wcześniej ustalonych reguł. Projekt pozostaje pilotem; rekomendujemy użycie na publicznych lub syntetycznych zadaniach.
 
 ## Do czego służy
 
@@ -10,11 +10,11 @@ Agent wsadowy kończy proces i traci bieżące połączenie, ale zlecenie, pytan
 
 ## Jak działa
 
-Klient MCP przekazuje specyfikację do trwałego dziennika. Paperclip uruchamia wskazanego wykonawcę. Odbiornik kopiuje dozwolone pliki i wiąże ich skróty SHA256 z konkretnym zadaniem oraz uruchomieniem. Osobny weryfikator testuje kopię bez poświadczeń agenta i z blokadą sieci. Koordynator przegląda dokładnie ten wynik i zatwierdza go przez MCP. Dopiero potwierdzone zamknięcie w Paperclip zwalnia blokady plików.
+Klient MCP przekazuje specyfikację do trwałego dziennika. Paperclip uruchamia wskazanego wykonawcę. Odbiornik kopiuje dozwolone pliki i wiąże ich skróty SHA256 z konkretnym zadaniem oraz uruchomieniem. Osobny weryfikator testuje kopię bez poświadczeń agenta i z blokadą sieci. Koordynator przegląda dokładnie ten wynik przez MCP. Zaufana polityka może zaakceptować wcześniej zatwierdzone pliki syntetyczne. Dopiero potwierdzone zamknięcie w Paperclip zwalnia blokady plików.
 
 ## Co potwierdziliśmy
 
-Codex przygotował moduł formatujący sekundy jako HH:MM:SS, testy oraz raport. Odebrano wszystkie trzy pliki. Testy przeszły w izolowanym środowisku K3s i lokalnie; dodatkowa kontrola objęła 400 001 wartości i bardzo dużą liczbę. Zatwierdzony manifest odpowiada odebranym plikom, a zadanie osiągnęło Done. Biblioteka mostu ma 198 przechodzących testów. Odbiór natywnego Codex w tym pilocie wymagał operatora; automatyczny odbiornik dotyczy obecnie Antigravity.
+Poprawny wynik i wynik po rzeczywistej naprawie dyspozycji osiągnęły Done bez ręcznego odbioru lub akceptacji. Naprawa nie uruchomiła ponownie modelu. Celowo błędne testy zatrzymały trzeci wynik, a restart nie powielił zatwierdzeń. Testy mostu: 376 PASS na Linuksie. Kopie plików zwrócone przez MCP zgadzają się bajt w bajt z testowanymi. Są to wcześniej zatwierdzone próbki syntetyczne; nie dowód automatycznej oceny dowolnego nowego programu.
 
 ## Z czego rozwinęliśmy projekt
 
@@ -22,4 +22,4 @@ Punktem wyjścia był otwarty Concord MCP oraz koncepcja współpracy agentów o
 
 ## Sens dalszego rozwoju
 
-Wartość stanowi kontrolowany, możliwy do prześledzenia obieg zlecenia i plików. Następny etap to automatyzacja odbioru Codex, pewne parkowanie zadania do przeglądu oraz pomiar czasu, kosztu i liczby poprawek. Nie zmierzono jeszcze zwrotu z inwestycji. Obecny etap nie uzasadnia pełnej autonomii produkcyjnej ani przekazywania dokumentów poufnych.
+Wartość stanowi kontrolowany, możliwy do prześledzenia obieg zlecenia i plików. Kolejny etap to pomiar czasu, kosztu i liczby poprawek oraz rozszerzanie zakresu na podstawie wyników pilota. Zwykły nowy kod nadal wymaga przeglądu koordynatora; automatyczna akceptacja obejmuje wyłącznie ściśle określone próby syntetyczne. Nie zmierzono jeszcze zwrotu z inwestycji. Obecny etap nie uzasadnia pełnej autonomii produkcyjnej ani przekazywania dokumentów poufnych.

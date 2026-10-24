@@ -8,6 +8,9 @@ metadata into a shared local workspace.
 
 **Status: experimental v0.3.0.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
+Live normal/recovery trials reached Done unattended; a failing-test trial was
+rejected. Completion uses a separately provisioned, exact-manifest owner-policy
+capability. See the [live report](docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md).
 See [native receipt deployment and E2E recipe](docs/native-codex-receipt.md).
 
 Trusted verifier-policy changes can be reloaded
@@ -22,6 +25,7 @@ and [limitations](docs/LIMITATIONS.md) before enabling execution.
 
 See the [one-page A4 brief](docs/pl/opis-dla-szefa.pdf),
 [project purpose and provenance](docs/pl/PROJEKT.md),
+[unattended Codex acceptance](docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md),
 [historical Codex pilot](docs/pl/ODBIOR-CODEX.md),
 [native receipt protocol](docs/native-codex-receipt.md) and [archive map](ARCHIVE.md).
 Version 0.3.0 adds a separate native Codex receiver and formal review handoff.
