@@ -88,8 +88,10 @@ def recover(engine, config):
 def cycle(engine, config):
     from .synthetic_review import approve
     receipts = receive(engine, config)
+    from .partial_cycle import cycle as partial_cycle
+    partials = partial_cycle(engine, config)
     recovery = recover(engine, config)
-    return {'receipts': receipts, 'recovery': recovery, 'approvals': approve(engine, config),
+    return {'receipts': receipts, 'partials': partials, 'recovery': recovery, 'approvals': approve(engine, config),
             'backlog': wake_ready_backlog(engine, config)}
 
 

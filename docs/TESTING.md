@@ -222,3 +222,23 @@ independent deny-all verifier passed28tests. Both accepted Codex batches reached
 Done/complete with claims0. The failed Antigravity acknowledgement was rejected
 and cancelled, while its actual22test contribution was reviewed and integrated.
 See the [detailed scope and acceptance](pl/POPRAWKA-I-UTRATA-LACZNOSCI.md).
+
+
+## Partial timeout recovery 0.5.0
+
+689 macOS tests pass, with one Linux-only skip. The59 partial-scope cases include
+Codex's13-method classifier suite, six actual Antigravity peer tests, six final
+Codex edge tests and34 independent integration cases. Real SQLite and filesystem
+snapshots test receipt-before-cleanup, separate manifests/claims, immutable replay,
+failed/cancelled preservation, negative provider/error evidence, malformed falsey
+responses, lost cleanup responses and export-only recovery without workspace
+reread. Syntax checking covers the generic native partial backend.
+
+Live: existing timer harvested five files from a genuine historical484.289s
+failure against a480s limit and cleared the exact terminated profile. A new
+Antigravity task succeeded, was received/tested/reviewed and reached Done. Codex
+actually read the automatically exported peer files after its initial review
+found an export permission defect; explicit mode handling and automatic export
+retry resolved it. Source failure remained failed; partial was never accepted as
+full success. These are distinct from a newly injected480s timeout. See the
+[scope and acceptance report](pl/LIMIT-480-I-CZESCIOWE-WYNIKI.md).

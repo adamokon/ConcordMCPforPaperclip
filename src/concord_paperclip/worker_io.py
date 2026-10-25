@@ -12,7 +12,7 @@ from .policy import BridgeError
 
 
 def execute(config, request):
-    if not isinstance(request, dict) or request.get("action") not in {"probe", "collect", "check", "preflight"}:
+    if not isinstance(request, dict) or request.get("action") not in {"probe", "collect", "check", "preflight", "partial"}:
         raise BridgeError("INVALID_REQUEST")
     profile = config["profiles"][request["profile"]]
     home = Path(profile["home"])
@@ -48,6 +48,37 @@ def execute(config, request):
         if request["run_id"] != run_id:
             raise BridgeError("INVALID_RUN_ID")
         return {"environment_removed": True, "workspace_absent": not os.path.lexists(root)}
+    if request["action"] == "partial":
+        import base64
+        import re
+        from .partial_io import capture_partial
+        from .partial_result import classify_partial
+        def private_file(name, max_file=262144):
+            item = snapshot(root, [name], [name], {}, max_file=max_file, max_total=2097152)
+            return base64.b64decode(item['manifest']['files'][0]['content_base64']).decode('utf-8')
+        raw = json.loads(private_file('result.json'))
+        cli = json.loads(private_file('cli-output.json', 2097152))
+        stderr = private_file('cli-stderr.log')
+        error = stderr + ' ' + str(cli.get('error', ''))
+        response = next((cli[k] for k in ('response', 'result', 'text') if k in cli), None)
+        if isinstance(response, dict) and set(response) == {'text'}:
+            response = response['text']
+        present = [p for p in request['paths'] if os.path.lexists(root / p)]
+        facts = dict(run_id=raw.get('run_id'), expected_run_id=run_id,
+            worker_status=raw.get('status'),worker_exit_code=raw.get('exit_code'),
+            worker_denied_actions=raw.get('denied_actions'),elapsed_seconds=raw.get('elapsed_seconds'),
+            deadline_seconds=request['deadline_seconds'],timeout_observed=bool(re.search(r'(?i)timeout|timed out|deadline',error)),
+            provider_stopped=True,environment_removed=True,producer_verified=request['producer_verified'],
+            auth_error=bool(re.search(r'(?i)unauthorized|invalid.token|invalid.grant|oauth.*fail|HTTP 40[13]',error)),
+            quota_error=bool(re.search(r'(?i)quota.exceeded|RESOURCE_EXHAUSTED|rate.limit.exceeded|HTTP.429|too.many.requests',error)),
+            security_error=raw.get('denied_actions')!=[],task_cancelled=request['task_cancelled'],
+            file_count=len(present),allowed_scope=True,native_status=request['native_status'],
+            cli_status=cli.get('status'),cli_response_empty=isinstance(response,str) and not response.strip(),
+            outer_timeout=raw.get('result')=='Bounded task execution timed out')
+        decision=classify_partial(facts)
+        if decision['eligible'] is not True:
+            raise BridgeError('PARTIAL_INELIGIBLE', decision['code'])
+        return capture_partial(root, request['paths'], request['context'])
     state = snapshot(root, ["result.json"], ["result.json"], {})
     import base64
     result = json.loads(base64.b64decode(state["manifest"]["files"][0]["content_base64"]))

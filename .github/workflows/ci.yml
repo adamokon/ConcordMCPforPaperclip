@@ -15,6 +15,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: uv sync --extra dev --locked
       - run: node --check scripts/native-recovery-backend.mjs
+      - run: node --check scripts/native-partial-backend.mjs
       - run: uv run ruff check src tests
       - run: uv run pytest -q
       - run: uv run python -m unittest discover -s examples/codex-e2e -v

@@ -455,7 +455,7 @@ class Engine:
             task = self._task(c, task_id)
             if task["state"] == "cancelled":
                 return {"id": task_id, "state": "cancelled"}
-            if task["state"] != "execution_failed" or task["version"] != version:
+            if task["state"] not in {"execution_failed", "partial_ready"} or task["version"] != version:
                 raise BridgeError("STALE_VERSION")
             attempt = c.execute("SELECT * FROM attempts WHERE task_id=? ORDER BY number DESC LIMIT 1",
                                 (task_id,)).fetchone()

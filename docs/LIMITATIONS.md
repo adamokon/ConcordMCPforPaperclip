@@ -61,3 +61,20 @@ resolution of the executor-owned recovery were required before the scoped
 coordinator could finalize Done. The bridge key was not widened. This is historical 0.2.1 evidence. Version 0.3.0 implements a separate native
 Codex collector and formal review handoff; see the [native protocol](native-codex-receipt.md).
 See the [pilot report](pl/ODBIOR-CODEX.md).
+
+
+## Partial timeout scope (0.5.0)
+
+A verified480-second final-response deadline can leave useful code and an errored
+profile. Partial receipt and exact-profile metadata cleanup are supported only
+with opted-in root policy and the matching native adapter. They do not increase
+the model limit, repair OAuth/quota, infer provider success, reopen cancelled work
+or replay model execution. Missing/malformed raw evidence remains blocked;
+the current worker reader requires both CLI output and stderr. The pure classifier
+can describe an outer timeout, but missing raw files do not bypass that reader.
+
+Files can be exported automatically for a subsequent Codex review. Selection,
+review and acceptance of a new integration task still belong to the coordinator;
+this feature does not create a second scheduler. Original partials need review
+and may contain incorrect or unfinished code. Live receipt of a historical real
+480-second failure is distinct from intentionally timing out a new model run.

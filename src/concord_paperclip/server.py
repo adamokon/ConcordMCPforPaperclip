@@ -80,6 +80,12 @@ def build_server(engine, config):
         return await invoke(engine.artifacts, task_id, include_content)
 
     @mcp.tool()
+    async def paperclip_partial_artifacts(task_id: str, include_content: bool = False) -> dict:
+        """Read explicitly partial timeout files; never a completed result."""
+        from .partial_store import read
+        return await invoke(read, engine, task_id, include_content)
+
+    @mcp.tool()
     async def paperclip_continue_batch(idempotency_key: str, task_id: str,
                                        question_id: str, answer_id: str) -> dict:
         """Create a bounded continuation with verified partial files and a linked clarification."""

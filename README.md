@@ -6,7 +6,7 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.4.1.** Native Codex receipt, fixed executor review handoff,
+**Status: experimental v0.5.0.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
 Live normal/recovery trials reached Done unattended; a failing-test trial was
 rejected. Completion uses a separately provisioned, exact-manifest owner-policy
@@ -27,6 +27,12 @@ pre-provider recovery in the existing receiver, a durable one-shot intent and
 actual-successor reconciliation after lost responses. Unknown effects, auth/quota
 and paused profiles remain blocked. See the [recovery design and acceptance
 report](docs/pl/AUTOMATYCZNE-RECOVERY.md).
+
+Version 0.5.0 adds opt-in receipt of **partial code after a verified final-response
+limit**. The existing receiver snapshots allowlisted files before a separate root
+capability clears the exact terminated profile's error. Native failure stays
+failed; partial files never become a full result or authorize a model retry.
+See [480-second recovery](docs/pl/LIMIT-480-I-CZESCIOWE-WYNIKI.md).
 
 Trusted verifier-policy changes can be reloaded
 within a long-lived MCP session; identity/authority drift still requires restart.
@@ -143,3 +149,7 @@ Version0.4.1 routes gateway traffic through the bounded process-group runner.
 The [real transport/cooperation acceptance](docs/pl/POPRAWKA-I-UTRATA-LACZNOSCI.md)
 records a90second receiver SSH interruption, automatic recovery and reviewed
 artifacts, including the preserved failed Antigravity acknowledgement.
+
+`paperclip_partial_artifacts(task_id, include_content=false)` reads the separate
+partial receipt. A partial task needs a new reviewed integration result; it
+cannot pass `paperclip_review_work` as a successful full manifest.

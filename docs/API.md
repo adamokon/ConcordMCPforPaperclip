@@ -126,3 +126,31 @@ durable worker question and omitted from continuation source inputs. A batch
 without test files can receive `kind=clarification_validation`; that is not code
 test acceptance. Automated code verification supports top-level Python/unittest
 files and rejects directory-prefix scopes for receipt in this pilot.
+
+## Partial final-response deadlines (0.5.0)
+
+Opt-in lifecycle: `execution_failed → partial_ready`. Claims remain reserved
+until normal cancellation reconciliation; the native failed run is immutable.
+Explicitly allowed historical cancelled tasks can be harvested without reopening
+or acquiring claims. Completed tasks cannot accept partial receipts.
+
+`paperclip_partial_artifacts(task_id, include_content=false)` is a read-only MCP
+tool. It returns `partial:true`, `complete:false`, `record` and `snapshot`. The
+record contains schema_version1, kindpartial, reasonfinal_response_timeout,
+exact task/issue/run/agent binding, snapshot_digest, present_paths and
+missing_paths. It partitions the exact allowed filenames, with at least one
+Python source. Contents are omitted by default. Normal `paperclip_artifacts`
+and successful review continue to require their separate full manifest.
+
+The trusted receiver alone calls partial-collect and partial-cleanup. MCP callers
+cannot supply observations, cleanup commands or profile state. Profiles must be
+explicitly opted in through root-owned policy. The fixed native backend validates
+scope, producer hash and the latest terminal run, secures files before clearing
+error metadata, checks no active run/pause, and never starts models. Authentication,
+quota, security errors or unknown termination evidence block recovery.
+
+CLI `partial-context --task UUID` reads the journal without loading credentials;
+`partial-artifacts --task UUID` reads a saved receipt. The optional
+`scripts/native-partial-backend.mjs` uses Node22+ node:sqlite and the installed
+Paperclip service modules. Provision its root-owned configuration separately;
+company IDs, database credentials and deployment paths belong outside public Git.

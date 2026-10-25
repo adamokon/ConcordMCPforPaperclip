@@ -165,6 +165,9 @@ def native_call(config, operation):
 def execute(config, request):
     if not isinstance(request, dict):
         raise BridgeError("INVALID_REQUEST")
+    if request.get("action") in {"partial-collect", "partial-cleanup", "partial-export"}:
+        from .partial_host import execute as partial_execute
+        return partial_execute(config, request)
     if request.get("action") in {"recovery-inspect", "recovery-resolve"}:
         from .recovery_host import execute as recovery_execute
         return recovery_execute(config, request)
@@ -243,7 +246,7 @@ def main():
         from .config import load_config
         config = load_config(sys.argv[1])
         recovery_enabled = config.get("recovery", {}).get("policy", {}).get("enabled") is True
-        if recovery_enabled or any(isinstance(p, dict) and p.get("adapter_type") == "codex_local"
+        if recovery_enabled or config.get("partial", {}).get("enabled") is True or any(isinstance(p, dict) and p.get("adapter_type") == "codex_local"
                                    for p in config.get("profiles", {}).values()):
             from .config import require_root_config
             require_root_config(sys.argv[1])

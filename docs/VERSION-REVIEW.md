@@ -99,3 +99,19 @@ separate. The actual90second receiver-channel network test, accepted integration
 and preserved Antigravity failure are documented in the
 [transport acceptance report](pl/POPRAWKA-I-UTRATA-LACZNOSCI.md). Checksums and
 complete-history restoration evidence are retained with the release archive.
+
+
+## Partial receipt 0.5.0 review on 2026-10-25
+
+Official Concord, Python MCP SDK and Paperclip release/advisory endpoints were
+checked live before deploying the source overlay. Base project commit:
+5365f82349f5f37cd79ad4c38dd324ce76768112. Upstream latest versions observed were
+Concord0.16.0, Python SDK2.3.0 and Paperclip2026.1023.0. These observations do not
+establish compatibility or justify a platform upgrade. Selected Python3.11+
+dependencies and hashes remain pinned; only this project's version changes in
+uv.lock. The existing installed Paperclip variant and worker image remain in
+use. Native partial cleanup requires its separately provisioned root adapter and
+Node22+; the public script contains no site credentials/configuration. No provider,
+worker image or platform reinstall is part of this change. Full-history bundle,
+source archive, project distributions and checksums accompany the local release;
+provider credentials and a complete offline dependency set remain out of scope.

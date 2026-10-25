@@ -13,7 +13,7 @@ def main():
     parser.add_argument("command", choices=["serve", "doctor", "drain", "native", "inspect", "recover", "backup",
                                              "dispatch", "adopt", "observe", "collect", "project", "broker", "native-client",
                                              "receive", "probe", "gateway-context", "stdio-handoff", "executor-handoff", "receive-cycle",
-                                             "reconcile-cancelled", "recovery-context", "recovery-cycle"])
+                                             "reconcile-cancelled", "recovery-context", "recovery-cycle", "partial-context", "partial-artifacts"])
     parser.add_argument("--task")
     parser.add_argument("--version", type=int)
     parser.add_argument("--issue")
@@ -39,7 +39,7 @@ def main():
         if args.handoff is not None:
             raise BridgeError("HANDOFF_COMMAND_REQUIRED")
         config = load_config(args.config)
-        if config.get("recovery_policy", {}).get("enabled") is True or config.get("native_completion") is not None or config.get("synthetic_review", {}).get("enabled") is True:
+        if config.get("partial_policy", {}).get("enabled") is True or config.get("recovery_policy", {}).get("enabled") is True or config.get("native_completion") is not None or config.get("synthetic_review", {}).get("enabled") is True:
             from .config import require_root_config
             require_root_config(args.config)
         if args.command == "broker":
@@ -59,6 +59,12 @@ def main():
             backend = Paperclip(config["base_url"], config["company_id"], token, run_id=run_id,
                                 trusted_http_hosts=config.get("trusted_http_hosts", []))
             print(json.dumps(executor_handoff(config, backend, run_id)))
+            return
+        if args.command == "partial-context":
+            from .config import require_root_config
+            from .partial_cycle import read_context
+            require_root_config(args.config)
+            print(json.dumps(read_context(config,args.task)))
             return
         if args.command == "recovery-context":
             from .config import require_root_config
@@ -111,6 +117,9 @@ def main():
                       "attempt_id": attempt["id"], "task_id": task_id, "issue_id": task["issue_id"], "state": task["state"],
                       "created": dispatched[0] if dispatched else task["created"], "profile": attempt["profile"], "run_id": attempt["run_id"],
                       "paths": json.loads(task["spec"])["paths"]}
+        elif args.command == "partial-artifacts":
+            from .partial_store import read
+            result = read(engine, args.task, True)
         elif args.command == "recover":
             result = engine.recover()
         elif args.command == "reconcile-cancelled":

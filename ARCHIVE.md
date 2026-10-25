@@ -13,6 +13,7 @@ Nie należy tworzyć drugiego roboczego egzemplarza z rozbieżnymi plikami.
 | `docs/pl/ODBIOR-CODEX.md` | Historyczny pilot 0.2.1 z udziałem operatora |
 | `docs/pl/ODBIOR-AUTOMATYCZNY-CODEX.md` | Pełne próby 0.3.0, recovery, odrzucenie i restart |
 | `docs/pl/ODBIOR-RZECZYWISTEJ-POPRAWKI.md` | Nowa poprawka produkcyjna0.3.1, odbiór i przegląd przez MCP |
+| `docs/pl/LIMIT-480-I-CZESCIOWE-WYNIKI.md` | Odbiór częściowych plików i recovery profilu po480s w0.5.0 |
 | `docs/pl/POPRAWKA-I-UTRATA-LACZNOSCI.md` | Transport0.4.1, rzeczywista przerwa SSH i przegląd współpracy |
 | `docs/pl/AUTOMATYCZNE-RECOVERY.md` | Recovery0.4.0, trwały zamiar, restart i granice automatyzacji |
 | `docs/pl/WSPOLPRACA-CODEX-ANTIGRAVITY.md` | Pełny odbiór dwóch wykonawców, rzeczywiste Q&A przez Concord, recovery i cztery partie Done |
