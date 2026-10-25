@@ -1,0 +1,46 @@
+{
+  "release": "0.4.1",
+  "base_commit": "d62ba5d972e2ad1df2c17229e51e535ce2eb9b42",
+  "public_only": true,
+  "parts": [
+    {
+      "contributor": "Codex",
+      "path": "src/concord_paperclip/gateway_transport.py",
+      "received_source_sha256": "7606db1014b1bbc34bf5528678bc491b9af00f201ef5893af05da2c43c7db1bd",
+      "integrated_sha256": "616d4cd92aed9c10bf89228042fafaf7f6a2ceaf706ed17407d64d18670ac640",
+      "notes": "Actual received artifact; package import normalization"
+    },
+    {
+      "contributor": "Antigravity",
+      "path": "tests/test_gateway_peer.py",
+      "received_source_sha256": "22a95fc2b076fa9bf43e620d33d2ce269fc891dda942c4a469f3016b02bae3f1",
+      "integrated_sha256": "8aba9af71097c0245091adbcef357667e185dca6cb54be92793b40afa53477ff",
+      "notes": "Antigravity source captured from failed terminal run; accepted only after separate Codex/supervisor verification"
+    },
+    {
+      "contributor": "Codex",
+      "path": "tests/test_gateway_environment.py",
+      "received_source_sha256": "f3aac4b637bc224f8cc86580945eccd007eec4ad7ac4adb596da0512abbabf58",
+      "integrated_sha256": "d33cd92caafcb7886e0d8f0c5e223dd7dadf7c48a855d3de48969b1fd21df879",
+      "notes": "Actual received artifact; package import normalization"
+    }
+  ],
+  "acceptance": {
+    "packets_rejected": 8,
+    "failed_receiver_cycles": 2,
+    "seconds_cut_to_verified_result": 137.72,
+    "seconds_after_kernel_expiry_to_verified_result": 47.72,
+    "native_final_runs": 1,
+    "manifest_exact": true,
+    "code_and_final_complete": true,
+    "failed_peer_cancelled_preserved": true,
+    "all_claims_zero": true
+  },
+  "model_identity_provider_attested": false,
+  "supervisor_changes": [
+    "automation.gateway integration",
+    "Installed-package test imports and exact child-inspection failure handling",
+    "Three independent integration/stream-bound tests",
+    "Private bounded network test; no published deployment configuration"
+  ]
+}

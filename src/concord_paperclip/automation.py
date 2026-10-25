@@ -7,7 +7,6 @@ import base64
 import hashlib
 import json
 import os
-import subprocess
 import time
 import uuid
 
@@ -17,26 +16,9 @@ from .store import canonical
 
 
 def gateway(config, request):
-    command = config.get("gateway_command")
-    if not isinstance(command, list) or not command or not all(isinstance(x, str) for x in command):
-        raise BridgeError("GATEWAY_NOT_CONFIGURED")
-    credentials = os.environ.get("CREDENTIALS_DIRECTORY", "")
-    if any("{credentials}" in x for x in command) and not credentials:
-        raise BridgeError("GATEWAY_CREDENTIAL_REQUIRED")
-    command = [x.replace("{credentials}", credentials) for x in command]
-    try:
-        # Response is bounded at the producer as well as checked here.
-        p = subprocess.run(command, input=canonical(request).encode(), capture_output=True,
-                           timeout=110, env={"PATH": "/usr/bin:/bin", "LANG": "C.UTF-8"})
-        if p.returncode or len(p.stdout) > 2_000_000:
-            raise BridgeError("GATEWAY_UNAVAILABLE")
-        result = json.loads(p.stdout)
-        if not isinstance(result, dict) or not result.get("ok"):
-            raise BridgeError(result.get("code", "GATEWAY_REJECTED") if isinstance(result, dict)
-                              else "GATEWAY_REJECTED")
-        return result["result"]
-    except (OSError, subprocess.TimeoutExpired, ValueError, KeyError):
-        raise BridgeError("GATEWAY_UNAVAILABLE") from None
+    from .gateway_transport import exchange
+    return exchange(config.get("gateway_command"), request,
+                    os.environ.get("CREDENTIALS_DIRECTORY", ""))
 
 
 def refresh_profiles(engine, config):

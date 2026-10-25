@@ -6,7 +6,7 @@ artifact snapshots and an explicit review boundary. Paperclip remains the
 execution authority; optional **real Concord MCP** integration projects task
 metadata into a shared local workspace.
 
-**Status: experimental v0.4.0.** Native Codex receipt, fixed executor review handoff,
+**Status: experimental v0.4.1.** Native Codex receipt, fixed executor review handoff,
 conservative disposition recovery and opt-in synthetic acceptance are available.
 Live normal/recovery trials reached Done unattended; a failing-test trial was
 rejected. Completion uses a separately provisioned, exact-manifest owner-policy
@@ -138,3 +138,8 @@ See [Concord](https://github.com/Get-Concord-AI/concord-mcp) and
 configuration, internal inventory and operator notes. It is not included in
 source or wheel distributions. Store actual secrets in an OS keychain or secret
 manager; a reference to a secret is not the secret itself.
+
+Version0.4.1 routes gateway traffic through the bounded process-group runner.
+The [real transport/cooperation acceptance](docs/pl/POPRAWKA-I-UTRATA-LACZNOSCI.md)
+records a90second receiver SSH interruption, automatic recovery and reviewed
+artifacts, including the preserved failed Antigravity acknowledgement.

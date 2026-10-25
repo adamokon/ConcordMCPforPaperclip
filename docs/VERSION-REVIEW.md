@@ -84,3 +84,18 @@ container registry or cluster recovery backup is claimed. Reproduction still nee
 those dependencies unless provisioned separately. Credentials, native database,
 provider sessions and site configuration are outside the public Git history and
 source packages; recover them through the approved private operator process.
+
+
+## Transport 0.4.1 review on 2026-10-25
+
+Official release/advisory and selected tag-verification endpoints were checked
+again before preparing and building0.4.1. Dependency versions and hashes remain
+unchanged; only the project's own version changes in uv.lock. The base bridge
+commit is `d62ba5d972e2ad1df2c17229e51e535ce2eb9b42`. The tested target remains
+the installed Paperclip variant. No platform, worker image or SDK upgrade is
+implied. The native Codex receiver has a narrow transport backport onto0.3.1;
+the Process receiver uses the source overlay. Original broker versions remain
+separate. The actual90second receiver-channel network test, accepted integration
+and preserved Antigravity failure are documented in the
+[transport acceptance report](pl/POPRAWKA-I-UTRATA-LACZNOSCI.md). Checksums and
+complete-history restoration evidence are retained with the release archive.

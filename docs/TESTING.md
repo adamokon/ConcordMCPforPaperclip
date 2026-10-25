@@ -209,3 +209,16 @@ as successful. These results do not grant automatic acceptance of arbitrary new
 code or retry authority for unknown provider effects. See the
 [full recovery report](pl/AUTOMATYCZNE-RECOVERY.md). CI results are available in
 [GitHub Actions](https://github.com/adamokon/ConcordMCPforPaperclip/actions).
+
+
+## Transport 0.4.1
+
+630local tests pass with one Linux-only skip. The47new tests combine Codex's
+transport contract, actual Antigravity process tests, Codex environment integration
+and independent stream-bound checks. The real network trial rejected8SSH packets
+and produced2unavailable receiver cycles; a kernel90second expiry restored the
+channel, then the existing timer received the exact eight-file manifest and the
+independent deny-all verifier passed28tests. Both accepted Codex batches reached
+Done/complete with claims0. The failed Antigravity acknowledgement was rejected
+and cancelled, while its actual22test contribution was reviewed and integrated.
+See the [detailed scope and acceptance](pl/POPRAWKA-I-UTRATA-LACZNOSCI.md).
